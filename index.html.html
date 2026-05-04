@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查察組 留守輪值表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#f7f4ef;--bg2:#eee9e0;--card:#faf8f4;--border:#ddd8ce;
+    --text:#3a3530;--text2:#7a7068;--text3:#a89f94;
+    --accent-a:#8b7355;--accent-b:#6b7c6b;--red:#c0614a;--meeting:#b07040;
+    --shadow:rgba(58,53,48,.08);
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:300;min-height:100vh;padding-bottom:50px;}
+  .header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 20px 12px;}
+  .header-inner{max-width:540px;margin:0 auto;}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .header-left .sub{font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:3px;}
+  .header-left .title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:1px;}
+  .header-btns{display:flex;gap:6px;}
+  .icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--text2);padding:6px 12px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;font-family:inherit;transition:all .2s;}
+  .icon-btn.active{background:#c09060;border-color:#c09060;color:#fff;}
+  .group-tabs{display:flex;gap:6px;margin-bottom:10px;}
+  .group-tab{flex:1;padding:8px 0;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:400;background:var(--bg2);color:var(--text2);transition:all .2s;text-align:center;}
+  .group-tab.active-a{background:var(--accent-a);border-color:var(--accent-a);color:#fff;font-weight:500;}
+  .group-tab.active-b{background:var(--accent-b);border-color:var(--accent-b);color:#fff;font-weight:500;}
+  .view-tabs{display:flex;background:var(--bg2);border-radius:20px;padding:3px;}
+  .view-tab{flex:1;padding:6px 0;border:none;border-radius:17px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:400;background:transparent;color:var(--text2);transition:all .2s;}
+  .view-tab.active{background:var(--card);color:var(--text);font-weight:500;box-shadow:0 1px 4px var(--shadow);}
+  .month-nav{display:flex;align-items:center;justify-content:space-between;max-width:540px;margin:14px auto 0;padding:0 20px;}
+  .nav-btn{background:var(--card);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+  .month-label{font-size:15px;font-weight:500;color:var(--text);}
+  .main{max-width:540px;margin:12px auto 0;padding:0 14px;}
+  .swap-banner{margin-bottom:10px;padding:9px 14px;background:#fdf3e7;border:1px solid #e8c88a;border-radius:10px;font-size:12px;color:var(--meeting);}
+  .legend{display:flex;gap:14px;padding:4px 2px 8px;font-size:11px;color:var(--text3);}
+  .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+  .weekday{text-align:center;font-size:10px;font-weight:500;color:var(--text3);padding:4px 0;letter-spacing:1px;}
+  .weekday.weekend{color:var(--red);opacity:.7;}
+  .week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+  .day-cell{border-radius:10px;padding:5px 3px;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--border);min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;user-select:none;transition:all .15s;}
+  .day-cell.empty{background:transparent;border-color:transparent;cursor:default;}
+  .day-cell.weekend{opacity:0.4;cursor:default;background:var(--bg);}
+  .day-cell.holiday{background:#fdf0ee;border-color:#e8c0b8;opacity:1;cursor:default;}
+  .day-cell.today{border:1.5px solid var(--accent-a);}
+  .day-cell.swap-selected{background:#fdf3e7;border:1.5px solid #c09060;}
+  .day-num{font-size:11px;color:var(--text2);font-weight:400;}
+  .day-num.today{color:var(--accent-a);font-weight:600;}
+  .day-num.holiday-num{color:var(--red);font-weight:500;}
+  .holiday-name{font-size:8px;color:var(--red);line-height:1.2;text-align:center;width:95%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.8;}
+  .person-badge{font-size:10px;font-weight:500;border-radius:5px;padding:1px 3px;width:92%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;}
+  .meeting-badge{font-size:8px;border-radius:4px;padding:1px 3px;width:92%;text-align:center;white-space:nowrap;overflow:hidden;}
+  .list-view{margin-top:6px;}
+  .list-empty{text-align:center;color:var(--text3);padding:30px;font-size:13px;}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:6px;border-radius:12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+  .list-item.holiday{background:#fdf0ee;border-color:#e8c0b8;cursor:default;}
+  .list-left{display:flex;flex-direction:column;gap:3px;}
+  .list-date{font-size:13px;color:var(--text2);margin-right:5px;}
+  .list-weekday{font-size:11px;color:var(--text3);}
+  .list-holiday-label{font-size:11px;color:var(--red);margin-left:5px;}
+  .list-person{font-size:14px;font-weight:500;}
+  .list-meeting{font-size:11px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(58,53,48,.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
+  .modal-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:540px;border-top:1px solid var(--border);}
+  .modal-title{font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:500;}
+  .modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .modal-btn{border-radius:10px;padding:9px 4px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;transition:all .15s;border:1px solid var(--border);}
+  .panel-overlay{position:fixed;inset:0;background:rgba(58,53,48,.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
+  .panel-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:540px;max-height:78vh;overflow-y:auto;border-top:1px solid var(--border);}
+  .panel-title{font-size:14px;font-weight:500;margin-bottom:14px;color:var(--text);}
+  .panel-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .panel-input{flex:1;min-width:80px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+  .panel-input:focus{border-color:var(--accent-a);}
+  .panel-btn{background:var(--accent-a);border:none;border-radius:10px;color:#fff;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;}
+  .panel-btn.green{background:var(--accent-b);}
+  .member-tags{display:flex;flex-wrap:wrap;gap:7px;}
+  .member-tag{display:flex;align-items:center;gap:5px;border-radius:20px;padding:5px 10px;border:1px solid var(--border);background:var(--bg2);}
+  .member-tag-name{font-size:12px;font-weight:500;}
+  .member-tag-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0;opacity:.7;}
+  .meeting-section{margin-bottom:14px;}
+  .meeting-section-title{font-size:13px;font-weight:500;margin-bottom:7px;}
+  .meeting-dates{display:flex;flex-wrap:wrap;gap:6px;}
+  .meeting-date-tag{display:flex;align-items:center;gap:4px;border-radius:14px;padding:4px 10px;}
+  .meeting-date-text{font-size:12px;}
+  .meeting-date-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:0;}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#faf8f4;padding:9px 20px;border-radius:20px;font-size:12px;font-weight:500;z-index:200;box-shadow:0 4px 16px var(--shadow);white-space:nowrap;pointer-events:none;}
+  .saving{position:fixed;bottom:16px;right:16px;background:var(--card);color:var(--text3);padding:6px 12px;border-radius:12px;font-size:11px;border:1px solid var(--border);}
+  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-size:14px;color:var(--text3);letter-spacing:2px;background:var(--bg);gap:12px;}
+  .loading-dot{width:8px;height:8px;background:var(--accent-a);border-radius:50%;animation:pulse 1.2s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .hidden{display:none!important;}
+  .group-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="loading-dot"></div>
+  <span>連線中⋯</span>
+</div>
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="header-left">
+          <div class="sub">INSPECTION TEAM</div>
+          <div class="title">留守輪值表</div>
+        </div>
+        <div class="header-btns">
+          <button class="icon-btn" onclick="togglePanel('meetings')">📌 科會</button>
+          <button class="icon-btn" onclick="togglePanel('members')">👤 成員</button>
+          <button class="icon-btn" id="swap-btn" onclick="toggleSwap()">⇄ 換班</button>
+        </div>
+      </div>
+      <div class="group-tabs">
+        <button class="group-tab active-a" id="group-a" onclick="switchGroup('A')">
+          <span class="group-dot" style="background:#8b7355"></span>A 查察組
+        </button>
+        <button class="group-tab" id="group-b" onclick="switchGroup('B')">
+          <span class="group-dot" style="background:#6b7c6b"></span>B 查察組
+        </button>
+      </div>
+      <div class="view-tabs">
+        <button class="view-tab active" id="tab-calendar" onclick="switchTab('calendar')">📅 月曆</button>
+        <button class="view-tab" id="tab-list" onclick="switchTab('list')">📋 清單</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="month-label"></span>
+    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="main">
+    <div id="swap-banner" class="swap-banner hidden"></div>
+    <div class="legend"><span>🔴 國定假日</span><span>📌 科會</span></div>
+    <div id="calendar-view">
+      <div class="weekdays">
+        <div class="weekday weekend">日</div><div class="weekday">一</div><div class="weekday">二</div>
+        <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div>
+        <div class="weekday weekend">六</div>
+      </div>
+      <div id="calendar-grid"></div>
+    </div>
+    <div id="list-view" class="list-view hidden"></div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal" class="modal-overlay hidden" onclick="closeEditModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-grid" id="modal-grid"></div>
+  </div>
+</div>
+
+<!-- Members Panel -->
+<div id="members-panel" class="panel-overlay hidden" onclick="closePanel('members',event)">
+  <div class="panel-box" onclick="event.stopPropagation()">
+    <div class="panel-title" id="members-panel-title">👤 成員管理</div>
+    <div class="panel-row">
+      <input class="panel-input" id="new-member-input" placeholder="新增成員姓名" onkeydown="if(event.key==='Enter')addMember()">
+      <button class="panel-btn" onclick="addMember()">新增</button>
+    </div>
+    <div class="member-tags" id="member-tags"></div>
+  </div>
+</div>
+
+<!-- Meetings Panel -->
+<div id="meetings-panel" class="panel-overlay hidden" onclick="closePanel('meetings',event)">
+  <div class="panel-box" onclick="event.stopPropagation()">
+    <div class="panel-title">📌 科會 / 會議管理</div>
+    <div class="panel-row">
+      <input class="panel-input" id="new-meeting-title" placeholder="會議名稱" value="科會" style="min-width:80px">
+      <input class="panel-input" id="new-meeting-date" type="date" style="min-width:130px">
+      <button class="panel-btn green" onclick="addMeetingDate()">新增</button>
+    </div>
+    <div id="meeting-list"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<div id="saving" class="saving hidden">儲存中⋯</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBkKGkwKzUUBF0Yy76dkr1nt2TMSQM_Rhs",
+  authDomain: "duty-roster-710e5.firebaseapp.com",
+  databaseURL: "https://duty-roster-710e5-default-rtdb.firebaseio.com",
+  projectId: "duty-roster-710e5",
+  storageBucket: "duty-roster-710e5.firebasestorage.app",
+  messagingSenderId: "188344340143",
+  appId: "1:188344340143:web:0379357221b81f8bf08e5a"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+const GROUPS = {
+  A: {
+    members: ["政男","程凱","璃玲","佩珊","宣羽","楊穎","宛汝","慧穎","翰輝","千卉","佑東","雯華","子鳴","銘傑","鈺庭","以杰","政霖","誌雄","祐瑋","文建"],
+    schedule: {
+      "2026-04-01":"政男","2026-04-02":"程凱","2026-04-07":"璃玲","2026-04-08":"佩珊","2026-04-09":"宣羽","2026-04-10":"楊穎",
+      "2026-04-13":"宛汝","2026-04-14":"慧穎","2026-04-15":"翰輝","2026-04-16":"千卉","2026-04-17":"佑東",
+      "2026-04-20":"雯華","2026-04-21":"子鳴","2026-04-22":"銘傑","2026-04-23":"鈺庭","2026-04-24":"以杰",
+      "2026-04-27":"政霖","2026-04-28":"楊穎","2026-04-29":"誌雄","2026-04-30":"祐瑋",
+      "2026-05-04":"政男","2026-05-05":"程凱","2026-05-06":"宛汝","2026-05-07":"佩珊","2026-05-08":"宣羽",
+      "2026-05-11":"璃玲","2026-05-12":"宛汝","2026-05-13":"慧穎","2026-05-14":"翰輝","2026-05-15":"千卉",
+      "2026-05-18":"佑東","2026-05-19":"雯華","2026-05-20":"子鳴","2026-05-21":"銘傑","2026-05-22":"鈺庭",
+      "2026-05-25":"祐瑋","2026-05-26":"政霖","2026-05-27":"楊穎","2026-05-28":"以杰","2026-05-29":"誌雄",
+      "2026-06-01":"政男","2026-06-02":"程凱","2026-06-03":"璃玲","2026-06-04":"佩珊","2026-06-05":"以杰",
+      "2026-06-08":"宛汝","2026-06-09":"文建","2026-06-10":"慧穎","2026-06-11":"翰輝","2026-06-12":"千卉",
+      "2026-06-15":"佑東","2026-06-16":"雯華","2026-06-17":"子鳴","2026-06-18":"銘傑",
+      "2026-06-22":"鈺庭","2026-06-23":"祐瑋","2026-06-24":"政霖","2026-06-25":"楊穎","2026-06-26":"宣羽",
+      "2026-06-29":"誌雄","2026-06-30":"政男"
+    },
+    meetings: [{id:1,title:"科會",color:"#b07040",dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]}]
+  },
+  B: {
+    members: ["家善","銘杰","雯儀","凱翔","依芯","莉瑜","芝昀","敬明","冠璇","民昂","郁馨","世偉","獻文","麗君","宇聞","秋雅","怡菱","巍仁","杏真"],
+    schedule: {
+      "2026-04-01":"家善","2026-04-02":"銘杰",
+      "2026-04-07":"雯儀","2026-04-08":"凱翔","2026-04-09":"依芯","2026-04-10":"莉瑜",
+      "2026-04-13":"芝昀","2026-04-14":"敬明","2026-04-15":"冠璇","2026-04-16":"民昂","2026-04-17":"郁馨",
+      "2026-04-20":"世偉","2026-04-21":"獻文","2026-04-22":"麗君","2026-04-23":"莉瑜","2026-04-24":"宇聞",
+      "2026-04-27":"秋雅","2026-04-28":"怡菱","2026-04-29":"巍仁","2026-04-30":"杏真",
+      "2026-05-04":"郁馨","2026-05-05":"銘杰","2026-05-06":"芝昀","2026-05-07":"芝昀","2026-05-08":"莉瑜",
+      "2026-05-11":"依芯","2026-05-12":"凱翔","2026-05-13":"麗君","2026-05-14":"冠璇","2026-05-15":"民昂",
+      "2026-05-18":"家善","2026-05-19":"敬明","2026-05-20":"獻文","2026-05-21":"世偉","2026-05-22":"雯儀",
+      "2026-05-25":"宇聞","2026-05-26":"秋雅","2026-05-27":"怡菱","2026-05-28":"巍仁","2026-05-29":"杏真",
+      "2026-06-01":"郁馨","2026-06-02":"銘杰","2026-06-03":"芝昀","2026-06-04":"芝昀","2026-06-05":"莉瑜",
+      "2026-06-08":"依芯","2026-06-09":"凱翔","2026-06-10":"世偉","2026-06-11":"冠璇","2026-06-12":"民昂",
+      "2026-06-15":"家善","2026-06-16":"敬明","2026-06-17":"獻文","2026-06-18":"麗君",
+      "2026-06-22":"雯儀","2026-06-23":"宇聞","2026-06-24":"秋雅","2026-06-25":"怡菱","2026-06-26":"巍仁",
+      "2026-06-29":"杏真","2026-06-30":"郁馨"
+    },
+    meetings: [{id:1,title:"科會",color:"#6b7c6b",dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]}]
+  }
+};
+
+const TW_HOLIDAYS = {
+  "2026-01-01":"元旦","2026-02-16":"除夕","2026-02-17":"春節","2026-02-18":"春節","2026-02-19":"春節","2026-02-20":"春節",
+  "2026-04-03":"兒童節","2026-04-04":"清明節","2026-05-01":"勞動節","2026-06-19":"端午節",
+  "2026-09-25":"中秋節","2026-10-09":"國慶日","2026-10-10":"國慶日"
+};
+
+const COLORS_A=["#8b7355","#7a8b6b","#6b7a8b","#8b6b7a","#7a6b8b","#8b8b6b","#6b8b7a","#8b7a6b","#7a7a8b","#8b6b6b","#6b8b8b","#7a8b7a","#8b7a7a","#6b7a7a","#7a6b7a","#8b8b7a","#6b6b8b","#7a8b8b","#8b7a8b","#6b7a8b"];
+const COLORS_B=["#6b7c6b","#7c6b6b","#6b6b7c","#7c7c6b","#6b7c7c","#7c6b7c","#6b6b6b","#7c7c7c","#6b7a6b","#7a6b7a","#6b7a7a","#7a7a6b","#6b6b7a","#7a6b6b","#6b7c7a","#7c7a6b","#7a6b7c","#6b7a7c","#7c7a7c","#7a7c6b"];
+
+const now=new Date();
+let viewYear=now.getFullYear(),viewMonth=now.getMonth();
+let currentGroup='A',currentTab='calendar',swapMode=false,swapSelected=[];
+let liveData={A:{schedule:{},members:[],meetings:[]},B:{schedule:{},members:[],meetings:[]}};
+let initialized={A:false,B:false};
+
+function getColors(){return currentGroup==='A'?COLORS_A:COLORS_B;}
+function getAccent(){return currentGroup==='A'?'#8b7355':'#6b7c6b';}
+function getMemberColor(name){const m=liveData[currentGroup].members,idx=m.indexOf(name);return idx>=0?getColors()[idx%getColors().length]:'#a89f94';}
+function toKey(y,m,d){return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;}
+function isWeekend(y,m,d){const w=new Date(y,m,d).getDay();return w===0||w===6;}
+function getDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function getFirstDay(y,m){return new Date(y,m,1).getDay();}
+
+// Seed + listen
+async function initGroup(g){
+  const ss=await get(ref(db,`roster/${g}/schedule`));
+  const sm=await get(ref(db,`roster/${g}/members`));
+  const smt=await get(ref(db,`roster/${g}/meetings`));
+  if(!ss.exists()) await set(ref(db,`roster/${g}/schedule`),GROUPS[g].schedule);
+  if(!sm.exists()) await set(ref(db,`roster/${g}/members`),GROUPS[g].members);
+  if(!smt.exists()) await set(ref(db,`roster/${g}/meetings`),GROUPS[g].meetings);
+
+  onValue(ref(db,`roster/${g}/schedule`),snap=>{
+    liveData[g].schedule={...GROUPS[g].schedule,...(snap.val()||{})};
+    if(g===currentGroup)render();
+  });
+  onValue(ref(db,`roster/${g}/members`),snap=>{
+    liveData[g].members=snap.val()||[...GROUPS[g].members];
+    if(g===currentGroup)render();
+  });
+  onValue(ref(db,`roster/${g}/meetings`),snap=>{
+    liveData[g].meetings=snap.val()||JSON.parse(JSON.stringify(GROUPS[g].meetings));
+    if(g===currentGroup)render();
+  });
+  initialized[g]=true;
+}
+
+Promise.all(['A','B'].map(g=>initGroup(g))).then(()=>{
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  render();
+}).catch(()=>{
+  // fallback: show with initial data even if Firebase fails
+  ['A','B'].forEach(g=>{
+    liveData[g].schedule={...GROUPS[g].schedule};
+    liveData[g].members=[...GROUPS[g].members];
+    liveData[g].meetings=JSON.parse(JSON.stringify(GROUPS[g].meetings));
+  });
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  render();
+});
+
+function saveSchedule(){
+  document.getElementById('saving').classList.remove('hidden');
+  set(ref(db,`roster/${currentGroup}/schedule`),liveData[currentGroup].schedule)
+    .then(()=>setTimeout(()=>document.getElementById('saving').classList.add('hidden'),800));
+}
+function saveMembers(){set(ref(db,`roster/${currentGroup}/members`),liveData[currentGroup].members);}
+function saveMeetings(){set(ref(db,`roster/${currentGroup}/meetings`),liveData[currentGroup].meetings);}
+
+function render(){
+  document.getElementById('month-label').textContent=`${viewYear} 年 ${viewMonth+1} 月`;
+  document.getElementById('group-a').className='group-tab'+(currentGroup==='A'?' active-a':'');
+  document.getElementById('group-b').className='group-tab'+(currentGroup==='B'?' active-b':'');
+  document.getElementById('members-panel-title').textContent=`👤 ${currentGroup} 組成員管理`;
+  if(currentTab==='calendar')renderCalendar();else renderList();
+  renderMemberTags();renderMeetingList();
+}
+
+function renderCalendar(){
+  const grid=document.getElementById('calendar-grid');grid.innerHTML='';
+  const days=getDaysInMonth(viewYear,viewMonth),first=getFirstDay(viewYear,viewMonth);
+  const schedule=liveData[currentGroup].schedule,meetings=liveData[currentGroup].meetings;
+  let week=document.createElement('div');week.className='week-row';grid.appendChild(week);
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='day-cell empty';week.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    if((first+d-1)%7===0&&d>1){week=document.createElement('div');week.className='week-row';grid.appendChild(week);}
+    const key=toKey(viewYear,viewMonth,d);
+    const person=schedule[key],weekend=isWeekend(viewYear,viewMonth,d),holiday=TW_HOLIDAYS[key];
+    const isToday=d===now.getDate()&&viewMonth===now.getMonth()&&viewYear===now.getFullYear();
+    const isSelected=swapSelected.includes(key);
+    const dayMeetings=meetings.filter(m=>m.dates&&m.dates.includes(key));
+    const cell=document.createElement('div');cell.className='day-cell';
+    if(weekend&&!holiday)cell.classList.add('weekend');
+    if(holiday)cell.classList.add('holiday');
+    if(isToday)cell.classList.add('today');
+    if(isSelected)cell.classList.add('swap-selected');
+    if(!weekend&&!holiday)cell.onclick=()=>handleDayClick(d);
+    const num=document.createElement('span');
+    num.className='day-num'+(isToday?' today':'')+(holiday?' holiday-num':'');
+    num.textContent=d;cell.appendChild(num);
+    if(holiday){const hn=document.createElement('span');hn.className='holiday-name';hn.textContent=holiday;cell.appendChild(hn);}
+    if(person&&!weekend&&!holiday){
+      const pb=document.createElement('span');pb.className='person-badge';
+      const c=getMemberColor(person);pb.style.background=c+'18';pb.style.color=c;pb.textContent=person;cell.appendChild(pb);
+    }
+    dayMeetings.forEach(mt=>{
+      const mb=document.createElement('span');mb.className='meeting-badge';
+      mb.style.background=mt.color+'15';mb.style.color=mt.color;mb.textContent='📌'+mt.title;cell.appendChild(mb);
+    });
+    week.appendChild(cell);
+  }
+  const rem=(first+days)%7;
+  if(rem>0)for(let i=rem;i<7;i++){const e=document.createElement('div');e.className='day-cell empty';week.appendChild(e);}
+}
+
+function renderList(){
+  const prefix=`${viewYear}-${String(viewMonth+1).padStart(2,"0")}`;
+  const schedule=liveData[currentGroup].schedule,meetings=liveData[currentGroup].meetings;
+  const keys=Object.keys(schedule).filter(k=>k.startsWith(prefix)).sort();
+  const el=document.getElementById('list-view');el.innerHTML='';
+  const WD=['日','一','二','三','四','五','六'];
+  if(!keys.length){el.innerHTML='<div class="list-empty">本月尚無排班資料</div>';return;}
+  keys.forEach(k=>{
+    const d=new Date(k+'T00:00:00'),person=schedule[k],holiday=TW_HOLIDAYS[k];
+    const dayMeetings=meetings.filter(m=>m.dates&&m.dates.includes(k));
+    const item=document.createElement('div');
+    item.className='list-item'+(holiday?' holiday':'');
+    if(!holiday)item.onclick=()=>openEditModal(k);
+    const c=getMemberColor(person);
+    item.innerHTML=`<div class="list-left"><div><span class="list-date">${k.slice(5)}</span><span class="list-weekday">（${WD[d.getDay()]}）</span>${holiday?`<span class="list-holiday-label">🔴 ${holiday}</span>`:''}</div>${dayMeetings.map(mt=>`<span class="list-meeting" style="color:${mt.color}">📌 ${mt.title}</span>`).join('')}</div><span class="list-person" style="color:${holiday?'var(--red)':c}">${holiday?'假日':person||'—'}</span>`;
+    el.appendChild(item);
+  });
+}
+
+function renderMemberTags(){
+  const el=document.getElementById('member-tags');el.innerHTML='';
+  liveData[currentGroup].members.forEach((m,i)=>{
+    const c=getColors()[i%getColors().length];
+    const tag=document.createElement('div');tag.className='member-tag';tag.style.borderColor=c+'44';
+    tag.innerHTML=`<span class="member-tag-name" style="color:${c}">${m}</span><button class="member-tag-remove" onclick="removeMember('${m}')">✕</button>`;
+    el.appendChild(tag);
+  });
+}
+
+function renderMeetingList(){
+  const el=document.getElementById('meeting-list');el.innerHTML='';
+  const meetings=liveData[currentGroup].meetings;
+  if(!meetings||!meetings.length){el.innerHTML='<div style="color:var(--text3);font-size:13px">尚無會議排程</div>';return;}
+  meetings.forEach(mt=>{
+    const sec=document.createElement('div');sec.className='meeting-section';
+    sec.innerHTML=`<div class="meeting-section-title" style="color:${mt.color}">📌 ${mt.title}</div>`;
+    const dates=document.createElement('div');dates.className='meeting-dates';
+    (mt.dates||[]).forEach(d=>{
+      const tag=document.createElement('div');tag.className='meeting-date-tag';
+      tag.style.background=mt.color+'12';tag.style.border=`1px solid ${mt.color}33`;
+      tag.innerHTML=`<span class="meeting-date-text" style="color:${mt.color}">${d}</span><button class="meeting-date-remove" onclick="removeMeetingDate('${mt.title}','${d}')">✕</button>`;
+      dates.appendChild(tag);
+    });
+    sec.appendChild(dates);el.appendChild(sec);
+  });
+}
+
+window.changeMonth=function(dir){viewMonth+=dir;if(viewMonth<0){viewMonth=11;viewYear--;}if(viewMonth>11){viewMonth=0;viewYear++;}render();};
+window.switchTab=function(tab){
+  currentTab=tab;
+  document.getElementById('calendar-view').classList.toggle('hidden',tab!=='calendar');
+  document.getElementById('list-view').classList.toggle('hidden',tab!=='list');
+  document.getElementById('tab-calendar').classList.toggle('active',tab==='calendar');
+  document.getElementById('tab-list').classList.toggle('active',tab==='list');
+  render();
+};
+window.switchGroup=function(g){
+  currentGroup=g;swapMode=false;swapSelected=[];
+  document.getElementById('swap-btn').textContent='⇄ 換班';
+  document.getElementById('swap-btn').classList.remove('active');
+  document.getElementById('swap-banner').classList.add('hidden');
+  render();
+};
+window.toggleSwap=function(){
+  swapMode=!swapMode;swapSelected=[];
+  const btn=document.getElementById('swap-btn');
+  btn.textContent=swapMode?'✕ 取消':'⇄ 換班';btn.classList.toggle('active',swapMode);
+  document.getElementById('swap-banner').classList.toggle('hidden',!swapMode);
+  if(swapMode)document.getElementById('swap-banner').textContent='請點選第一個日期 →';
+  render();
+};
+function handleDayClick(day){
+  const key=toKey(viewYear,viewMonth,day);
+  if(swapMode){
+    if(swapSelected.includes(key)){swapSelected=swapSelected.filter(k=>k!==key);}
+    else if(swapSelected.length<2){
+      swapSelected.push(key);
+      document.getElementById('swap-banner').textContent=`已選 ${swapSelected[0].slice(5)}，再點第二個`;
+      if(swapSelected.length===2){
+        const[k1,k2]=swapSelected;const s=liveData[currentGroup].schedule;
+        const tmp=s[k1]||'';s[k1]=s[k2]||'';s[k2]=tmp;
+        if(!s[k1])delete s[k1];if(!s[k2])delete s[k2];
+        saveSchedule();swapSelected=[];swapMode=false;
+        document.getElementById('swap-btn').textContent='⇄ 換班';
+        document.getElementById('swap-btn').classList.remove('active');
+        document.getElementById('swap-banner').classList.add('hidden');
+        showToast('換班完成');render();return;
+      }
+    }
+    render();return;
+  }
+  openEditModal(key);
+}
+function openEditModal(key){
+  document.getElementById('modal-title').textContent=`${key}　指派人員`;
+  const grid=document.getElementById('modal-grid');grid.innerHTML='';
+  const schedule=liveData[currentGroup].schedule,members=liveData[currentGroup].members;
+  const clearBtn=document.createElement('button');clearBtn.className='modal-btn';
+  clearBtn.style.cssText='background:var(--bg2);color:var(--text3);border-style:dashed';
+  clearBtn.textContent='清除';clearBtn.onclick=()=>assignPerson(key,'');grid.appendChild(clearBtn);
+  members.forEach((m,i)=>{
+    const c=getColors()[i%getColors().length];
+    const btn=document.createElement('button');btn.className='modal-btn';
+    btn.style.background=c+'15';btn.style.borderColor=schedule[key]===m?c:c+'44';btn.style.color=c;
+    if(schedule[key]===m)btn.style.fontWeight='600';
+    btn.textContent=m;btn.onclick=()=>assignPerson(key,m);grid.appendChild(btn);
+  });
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function assignPerson(key,person){
+  const s=liveData[currentGroup].schedule;
+  if(person==='')delete s[key];else s[key]=person;
+  saveSchedule();closeModal();showToast('已更新');render();
+}
+window.closeEditModal=function(e){if(e.target===document.getElementById('edit-modal'))closeModal();};
+function closeModal(){document.getElementById('edit-modal').classList.add('hidden');}
+window.togglePanel=function(name){document.getElementById(name+'-panel').classList.toggle('hidden');};
+window.closePanel=function(name,e){if(e.target===document.getElementById(name+'-panel'))document.getElementById(name+'-panel').classList.add('hidden');};
+window.addMember=function(){
+  const input=document.getElementById('new-member-input');const name=input.value.trim();if(!name)return;
+  liveData[currentGroup].members.push(name);input.value='';
+  saveMembers();renderMemberTags();showToast('已新增 '+name);
+};
+window.removeMember=function(name){
+  liveData[currentGroup].members=liveData[currentGroup].members.filter(m=>m!==name);
+  saveMembers();renderMemberTags();showToast('已移除 '+name);
+};
+window.addMeetingDate=function(){
+  const title=document.getElementById('new-meeting-title').value.trim();
+  const date=document.getElementById('new-meeting-date').value;
+  if(!title||!date)return;
+  const meetings=liveData[currentGroup].meetings;
+  const existing=meetings.find(m=>m.title===title);
+  if(existing){if(!existing.dates.includes(date))existing.dates.push(date);existing.dates.sort();}
+  else meetings.push({id:Date.now(),title,color:getAccent(),dates:[date]});
+  document.getElementById('new-meeting-date').value='';
+  saveMeetings();render();showToast('已新增');
+};
+window.removeMeetingDate=function(title,date){
+  liveData[currentGroup].meetings=liveData[currentGroup].meetings
+    .map(m=>m.title===title?{...m,dates:m.dates.filter(d=>d!==date)}:m)
+    .filter(m=>m.dates.length>0);
+  saveMeetings();render();showToast('已移除');
+};
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'),2000);
+}
+</script>
+</body>
+</html>
