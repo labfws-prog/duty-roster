@@ -6,100 +6,165 @@
 <title>查察組 留守輪值表</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --bg:#f7f4ef;--bg2:#eee9e0;--card:#faf8f4;--border:#ddd8ce;
-    --text:#3a3530;--text2:#7a7068;--text3:#a89f94;
-    --accent-a:#8b7355;--accent-b:#6b7c6b;--red:#c0614a;--meeting:#b07040;
-    --shadow:rgba(58,53,48,.08);
-  }
-  body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:300;min-height:100vh;padding-bottom:50px;}
-  .header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 20px 12px;}
-  .header-inner{max-width:540px;margin:0 auto;}
-  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .header-left .sub{font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:3px;}
-  .header-left .title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:1px;}
-  .header-btns{display:flex;gap:6px;}
-  .icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--text2);padding:6px 12px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;font-family:inherit;transition:all .2s;}
-  .icon-btn.active{background:#c09060;border-color:#c09060;color:#fff;}
-  .group-tabs{display:flex;gap:6px;margin-bottom:10px;}
-  .group-tab{flex:1;padding:8px 0;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:400;background:var(--bg2);color:var(--text2);transition:all .2s;text-align:center;}
-  .group-tab.active-a{background:var(--accent-a);border-color:var(--accent-a);color:#fff;font-weight:500;}
-  .group-tab.active-b{background:var(--accent-b);border-color:var(--accent-b);color:#fff;font-weight:500;}
-  .view-tabs{display:flex;background:var(--bg2);border-radius:20px;padding:3px;}
-  .view-tab{flex:1;padding:6px 0;border:none;border-radius:17px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:400;background:transparent;color:var(--text2);transition:all .2s;}
-  .view-tab.active{background:var(--card);color:var(--text);font-weight:500;box-shadow:0 1px 4px var(--shadow);}
-  .month-nav{display:flex;align-items:center;justify-content:space-between;max-width:540px;margin:14px auto 0;padding:0 20px;}
-  .nav-btn{background:var(--card);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
-  .month-label{font-size:15px;font-weight:500;color:var(--text);}
-  .main{max-width:540px;margin:12px auto 0;padding:0 14px;}
-  .swap-banner{margin-bottom:10px;padding:9px 14px;background:#fdf3e7;border:1px solid #e8c88a;border-radius:10px;font-size:12px;color:var(--meeting);}
-  .legend{display:flex;gap:14px;padding:4px 2px 8px;font-size:11px;color:var(--text3);}
-  .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
-  .weekday{text-align:center;font-size:10px;font-weight:500;color:var(--text3);padding:4px 0;letter-spacing:1px;}
-  .weekday.weekend{color:var(--red);opacity:.7;}
-  .week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
-  .day-cell{border-radius:10px;padding:5px 3px;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--border);min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;user-select:none;transition:all .15s;}
-  .day-cell.empty{background:transparent;border-color:transparent;cursor:default;}
-  .day-cell.weekend{opacity:0.4;cursor:default;background:var(--bg);}
-  .day-cell.holiday{background:#fdf0ee;border-color:#e8c0b8;opacity:1;cursor:default;}
-  .day-cell.today{border:1.5px solid var(--accent-a);}
-  .day-cell.swap-selected{background:#fdf3e7;border:1.5px solid #c09060;}
-  .day-num{font-size:11px;color:var(--text2);font-weight:400;}
-  .day-num.today{color:var(--accent-a);font-weight:600;}
-  .day-num.holiday-num{color:var(--red);font-weight:500;}
-  .holiday-name{font-size:8px;color:var(--red);line-height:1.2;text-align:center;width:95%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.8;}
-  .person-badge{font-size:10px;font-weight:500;border-radius:5px;padding:1px 3px;width:92%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;}
-  .meeting-badge{font-size:8px;border-radius:4px;padding:1px 3px;width:92%;text-align:center;white-space:nowrap;overflow:hidden;}
-  .list-view{margin-top:6px;}
-  .list-empty{text-align:center;color:var(--text3);padding:30px;font-size:13px;}
-  .list-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;margin-bottom:6px;border-radius:12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
-  .list-item.holiday{background:#fdf0ee;border-color:#e8c0b8;cursor:default;}
-  .list-left{display:flex;flex-direction:column;gap:3px;}
-  .list-date{font-size:13px;color:var(--text2);margin-right:5px;}
-  .list-weekday{font-size:11px;color:var(--text3);}
-  .list-holiday-label{font-size:11px;color:var(--red);margin-left:5px;}
-  .list-person{font-size:14px;font-weight:500;}
-  .list-meeting{font-size:11px;}
-  .modal-overlay{position:fixed;inset:0;background:rgba(58,53,48,.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
-  .modal-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:540px;border-top:1px solid var(--border);}
-  .modal-title{font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:500;}
-  .modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-  .modal-btn{border-radius:10px;padding:9px 4px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;transition:all .15s;border:1px solid var(--border);}
-  .panel-overlay{position:fixed;inset:0;background:rgba(58,53,48,.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
-  .panel-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:540px;max-height:78vh;overflow-y:auto;border-top:1px solid var(--border);}
-  .panel-title{font-size:14px;font-weight:500;margin-bottom:14px;color:var(--text);}
-  .panel-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-  .panel-input{flex:1;min-width:80px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
-  .panel-input:focus{border-color:var(--accent-a);}
-  .panel-btn{background:var(--accent-a);border:none;border-radius:10px;color:#fff;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;}
-  .panel-btn.green{background:var(--accent-b);}
-  .member-tags{display:flex;flex-wrap:wrap;gap:7px;}
-  .member-tag{display:flex;align-items:center;gap:5px;border-radius:20px;padding:5px 10px;border:1px solid var(--border);background:var(--bg2);}
-  .member-tag-name{font-size:12px;font-weight:500;}
-  .member-tag-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0;opacity:.7;}
-  .meeting-section{margin-bottom:14px;}
-  .meeting-section-title{font-size:13px;font-weight:500;margin-bottom:7px;}
-  .meeting-dates{display:flex;flex-wrap:wrap;gap:6px;}
-  .meeting-date-tag{display:flex;align-items:center;gap:4px;border-radius:14px;padding:4px 10px;}
-  .meeting-date-text{font-size:12px;}
-  .meeting-date-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:0;}
-  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#faf8f4;padding:9px 20px;border-radius:20px;font-size:12px;font-weight:500;z-index:200;box-shadow:0 4px 16px var(--shadow);white-space:nowrap;pointer-events:none;}
-  .saving{position:fixed;bottom:16px;right:16px;background:var(--card);color:var(--text3);padding:6px 12px;border-radius:12px;font-size:11px;border:1px solid var(--border);}
-  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-size:14px;color:var(--text3);letter-spacing:2px;background:var(--bg);gap:12px;}
-  .loading-dot{width:8px;height:8px;background:var(--accent-a);border-radius:50%;animation:pulse 1.2s infinite;}
-  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
-  .hidden{display:none!important;}
-  .group-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f7f4ef;--bg2:#eee9e0;--card:#faf8f4;--border:#ddd8ce;
+  --text:#3a3530;--text2:#7a7068;--text3:#a89f94;
+  --accent-a:#8b7355;--accent-b:#6b7c6b;--red:#c0614a;--meeting:#b07040;
+  --green:#5a7a5a;--shadow:rgba(58,53,48,.08);
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:300;min-height:100vh;padding-bottom:60px;}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 20px 12px;position:sticky;top:0;z-index:50;}
+.header-inner{max-width:560px;margin:0 auto;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.header-left .sub{font-size:10px;color:var(--text3);letter-spacing:3px;margin-bottom:2px;}
+.header-left .title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:1px;}
+.header-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:16px;color:var(--text2);padding:5px 10px;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;font-family:inherit;transition:all .2s;}
+.icon-btn:hover{background:var(--border);}
+.icon-btn.active{background:#c09060;border-color:#c09060;color:#fff;}
+.icon-btn.danger{background:#fdf0ee;border-color:#e8c0b8;color:var(--red);}
+.icon-btn.auto{background:#f0f4f0;border-color:#b8d0b8;color:#4a6a4a;}
+.icon-btn.admin-on{background:#3a3530;border-color:#3a3530;color:#faf8f4;}
+.group-tabs{display:flex;gap:6px;margin-bottom:8px;}
+.group-tab{flex:1;padding:7px 0;border:1px solid var(--border);border-radius:16px;cursor:pointer;font-family:inherit;font-size:12px;background:var(--bg2);color:var(--text2);transition:all .2s;text-align:center;}
+.group-tab.active-a{background:var(--accent-a);border-color:var(--accent-a);color:#fff;font-weight:500;}
+.group-tab.active-b{background:var(--accent-b);border-color:var(--accent-b);color:#fff;font-weight:500;}
+.view-tabs{display:flex;background:var(--bg2);border-radius:16px;padding:3px;}
+.view-tab{flex:1;padding:5px 0;border:none;border-radius:13px;cursor:pointer;font-family:inherit;font-size:11px;background:transparent;color:var(--text2);transition:all .2s;}
+.view-tab.active{background:var(--card);color:var(--text);font-weight:500;box-shadow:0 1px 4px var(--shadow);}
+.month-nav{display:flex;align-items:center;justify-content:space-between;max-width:560px;margin:12px auto 0;padding:0 16px;}
+.nav-btn{background:var(--card);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.month-label{font-size:14px;font-weight:500;}
+.main{max-width:560px;margin:10px auto 0;padding:0 12px;}
+.swap-banner{margin-bottom:8px;padding:8px 12px;background:#fdf3e7;border:1px solid #e8c88a;border-radius:10px;font-size:12px;color:var(--meeting);}
+.legend{display:flex;gap:10px;padding:3px 2px 7px;font-size:10px;color:var(--text3);flex-wrap:wrap;}
+
+/* Calendar */
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
+.weekday{text-align:center;font-size:9px;font-weight:500;color:var(--text3);padding:3px 0;letter-spacing:1px;}
+.weekday.weekend{color:var(--red);opacity:.7;}
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
+.day-cell{border-radius:8px;padding:4px 2px;text-align:center;cursor:pointer;background:var(--card);border:1px solid var(--border);min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;user-select:none;transition:all .15s;}
+.day-cell.empty{background:transparent;border-color:transparent;cursor:default;}
+.day-cell.weekend{opacity:0.35;cursor:default;background:var(--bg);}
+.day-cell.holiday{background:#fdf0ee;border-color:#e8c0b8;opacity:1;cursor:default;}
+.day-cell.today{border:1.5px solid var(--accent-a);}
+.day-cell.swap-sel{background:#fdf3e7;border:1.5px solid #c09060;}
+.day-num{font-size:10px;color:var(--text2);line-height:1.2;}
+.day-num.today{color:var(--accent-a);font-weight:600;}
+.day-num.hol{color:var(--red);font-weight:500;}
+.hol-name{font-size:7px;color:var(--red);line-height:1;width:95%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.person-badge{font-size:9px;font-weight:500;border-radius:4px;padding:1px 2px;width:94%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;}
+.ev-badge{font-size:7px;border-radius:3px;padding:1px 2px;width:94%;text-align:center;white-space:nowrap;overflow:hidden;line-height:1.3;}
+
+/* Stats */
+.stats-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.stats-title{font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;font-weight:500;}
+.stat-chip{display:flex;align-items:center;gap:4px;border-radius:14px;padding:4px 9px;border:1px solid var(--border);}
+.stat-name{font-size:11px;font-weight:500;}
+.stat-count{font-size:10px;color:var(--text3);}
+
+/* List */
+.list-view{margin-top:4px;}
+.list-empty{text-align:center;color:var(--text3);padding:24px;font-size:12px;}
+.list-item{padding:10px 13px;margin-bottom:5px;border-radius:10px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.list-item:hover:not(.holiday){border-color:var(--accent-a);}
+.list-item.holiday{background:#fdf0ee;border-color:#e8c0b8;cursor:default;}
+.list-item.unassigned{border-style:dashed;}
+.list-item-top{display:flex;align-items:center;justify-content:space-between;}
+.list-date{font-size:12px;color:var(--text2);}
+.list-wd{font-size:11px;color:var(--text3);}
+.list-evs{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;}
+.list-ev{font-size:10px;border-radius:6px;padding:2px 6px;}
+.list-person{font-size:13px;font-weight:500;}
+.inline-assign{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.inline-title{font-size:10px;color:var(--text3);margin-bottom:6px;}
+.inline-btns{display:flex;flex-wrap:wrap;gap:5px;}
+.inline-btn{border-radius:7px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--bg2);color:var(--text2);}
+.inline-btn.sel{font-weight:700;}
+.inline-btn.clr{border-style:dashed;color:var(--text3);}
+
+/* Overlay / Modal / Panel */
+.overlay{position:fixed;inset:0;background:rgba(58,53,48,.45);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
+.overlay.center{align-items:center;}
+.modal-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:560px;border-top:1px solid var(--border);}
+.modal-box.center{border-radius:16px;padding:22px 20px;max-width:360px;}
+.modal-title{font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:500;}
+.modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.modal-btn{border-radius:9px;padding:8px 3px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;transition:all .15s;border:1px solid var(--border);}
+.panel-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:560px;max-height:82vh;overflow-y:auto;border-top:1px solid var(--border);}
+.panel-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text);}
+.panel-sec{margin-bottom:16px;}
+.panel-sec-title{font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;font-weight:500;}
+.panel-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.panel-input{flex:1;min-width:70px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:7px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none;}
+.panel-input:focus{border-color:var(--accent-a);}
+.color-pick{width:36px;height:34px;border-radius:9px;border:1px solid var(--border);cursor:pointer;padding:2px;}
+.panel-btn{background:var(--accent-a);border:none;border-radius:9px;color:#fff;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;}
+.panel-btn.b{background:var(--accent-b);}
+.panel-btn.r{background:var(--red);}
+.member-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.member-tag{display:flex;align-items:center;gap:5px;border-radius:16px;padding:4px 9px;border:1px solid var(--border);}
+.member-tag-name{font-size:11px;font-weight:500;}
+.member-tag-rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:0;opacity:.7;}
+.ev-item{margin-bottom:10px;}
+.ev-item-head{display:flex;align-items:center;margin-bottom:5px;}
+.ev-dot{width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0;}
+.ev-item-title{font-size:12px;font-weight:500;flex:1;}
+.ev-item-rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;opacity:.7;}
+.ev-dates{display:flex;flex-wrap:wrap;gap:4px;}
+.ev-date-chip{display:flex;align-items:center;gap:3px;border-radius:10px;padding:3px 8px;font-size:11px;}
+.ev-date-rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:10px;padding:0;}
+
+/* Swap request */
+.swap-req{padding:10px 12px;margin-bottom:6px;border-radius:10px;background:var(--card);border:1px solid var(--border);}
+.swap-req.pending{border-color:#e8c88a;background:#fdf9f2;}
+.swap-req.approved{border-color:#b8d0b8;background:#f2f7f2;}
+.swap-req.rejected{border-color:#e8c0b8;background:#fdf0ee;opacity:.7;}
+.swap-req-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.swap-req-info{font-size:12px;color:var(--text);}
+.swap-req-time{font-size:10px;color:var(--text3);}
+.swap-req-detail{font-size:11px;color:var(--text2);margin-bottom:6px;}
+.swap-req-btns{display:flex;gap:6px;}
+.swap-approve{background:#f0f7f0;border:1px solid #b8d0b8;color:var(--green);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;}
+.swap-reject{background:#fdf0ee;border:1px solid #e8c0b8;color:var(--red);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;}
+.badge-pending{background:#fdf3e7;color:#b07040;border:1px solid #e8c88a;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:500;}
+.badge-approved{background:#f0f7f0;color:var(--green);border:1px solid #b8d0b8;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:500;}
+.badge-rejected{background:#fdf0ee;color:var(--red);border:1px solid #e8c0b8;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:500;}
+
+/* Admin login */
+.login-box{background:var(--card);border-radius:16px;padding:24px 20px;width:100%;max-width:300px;}
+.login-title{font-size:14px;font-weight:600;margin-bottom:16px;text-align:center;}
+.login-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:4px;}
+.login-btn{width:100%;background:var(--accent-a);border:none;border-radius:10px;color:#fff;padding:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;}
+.login-err{font-size:11px;color:var(--red);text-align:center;margin-top:6px;}
+
+/* Confirm */
+.confirm-btns{display:flex;gap:8px;margin-top:14px;}
+.confirm-btn{flex:1;padding:9px;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;}
+.confirm-btn.yes{background:var(--red);color:#fff;}
+.confirm-btn.no{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+
+/* Notification dot */
+.notif-dot{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;margin-left:3px;vertical-align:middle;}
+
+.chk-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.chk-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--red);}
+.select-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);border-radius:10px;margin-bottom:8px;flex-wrap:wrap;}
+.select-bar-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;color:var(--text2);}
+.select-bar-btn.del{border-color:#e8c0b8;color:var(--red);background:#fdf0ee;}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--text);color:#faf8f4;padding:8px 18px;border-radius:18px;font-size:12px;font-weight:500;z-index:300;box-shadow:0 4px 16px var(--shadow);white-space:nowrap;pointer-events:none;}
+.saving{position:fixed;bottom:14px;right:14px;background:var(--card);color:var(--text3);padding:5px 10px;border-radius:10px;font-size:10px;border:1px solid var(--border);}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-size:13px;color:var(--text3);letter-spacing:2px;background:var(--bg);gap:10px;}
+.loading-dot{width:7px;height:7px;background:var(--accent-a);border-radius:50%;animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+.hidden{display:none!important;}
+.group-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle;}
 </style>
 </head>
 <body>
-
-<div id="loading" class="loading">
-  <div class="loading-dot"></div>
-  <span>連線中⋯</span>
-</div>
-
+<div id="loading" class="loading"><div class="loading-dot"></div><span>連線中⋯</span></div>
 <div id="app" class="hidden">
   <div class="header">
     <div class="header-inner">
@@ -108,36 +173,30 @@
           <div class="sub">INSPECTION TEAM</div>
           <div class="title">留守輪值表</div>
         </div>
-        <div class="header-btns">
-          <button class="icon-btn" onclick="togglePanel('meetings')">📌 科會</button>
-          <button class="icon-btn" onclick="togglePanel('members')">👤 成員</button>
-          <button class="icon-btn" id="swap-btn" onclick="toggleSwap()">⇄ 換班</button>
+        <div class="header-btns" id="header-btns">
+          <!-- Rendered by JS -->
         </div>
       </div>
       <div class="group-tabs">
-        <button class="group-tab active-a" id="group-a" onclick="switchGroup('A')">
-          <span class="group-dot" style="background:#8b7355"></span>A 查察組
-        </button>
-        <button class="group-tab" id="group-b" onclick="switchGroup('B')">
-          <span class="group-dot" style="background:#6b7c6b"></span>B 查察組
-        </button>
+        <button class="group-tab active-a" id="group-a" onclick="switchGroup('A')"><span class="group-dot" style="background:#8b7355"></span>A 查察組</button>
+        <button class="group-tab" id="group-b" onclick="switchGroup('B')"><span class="group-dot" style="background:#6b7c6b"></span>B 查察組</button>
       </div>
       <div class="view-tabs">
         <button class="view-tab active" id="tab-calendar" onclick="switchTab('calendar')">📅 月曆</button>
         <button class="view-tab" id="tab-list" onclick="switchTab('list')">📋 清單</button>
+        <button class="view-tab" id="tab-stats" onclick="switchTab('stats')">📊 統計</button>
+        <button class="view-tab" id="tab-swap" onclick="switchTab('swap')">🔄 換班紀錄<span id="swap-notif" class="notif-dot hidden"></span></button>
       </div>
     </div>
   </div>
-
   <div class="month-nav">
     <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
     <span class="month-label" id="month-label"></span>
     <button class="nav-btn" onclick="changeMonth(1)">›</button>
   </div>
-
   <div class="main">
     <div id="swap-banner" class="swap-banner hidden"></div>
-    <div class="legend"><span>🔴 國定假日</span><span>📌 科會</span></div>
+    <div class="legend" id="legend"></div>
     <div id="calendar-view">
       <div class="weekdays">
         <div class="weekday weekend">日</div><div class="weekday">一</div><div class="weekday">二</div>
@@ -147,19 +206,43 @@
       <div id="calendar-grid"></div>
     </div>
     <div id="list-view" class="list-view hidden"></div>
+    <div id="stats-view" class="hidden"></div>
+    <div id="swap-view" class="hidden"></div>
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div id="edit-modal" class="modal-overlay hidden" onclick="closeEditModal(event)">
+<!-- Edit Modal (admin only) -->
+<div id="edit-modal" class="overlay hidden" onclick="closeEditModal(event)">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-grid" id="modal-grid"></div>
   </div>
 </div>
 
+<!-- Confirm Clear -->
+<div id="confirm-modal" class="overlay center hidden">
+  <div class="modal-box center">
+    <div class="modal-title">確定清除 <span id="confirm-month"></span> 排班？</div>
+    <div style="font-size:12px;color:var(--text3)">此操作無法復原</div>
+    <div class="confirm-btns">
+      <button class="confirm-btn no" onclick="closeConfirm()">取消</button>
+      <button class="confirm-btn yes" onclick="clearMonth()">確定清除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login -->
+<div id="login-modal" class="overlay center hidden">
+  <div class="login-box">
+    <div class="login-title">🔐 管理員登入</div>
+    <input class="login-input" type="password" id="login-pwd" placeholder="••••" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div class="login-err hidden" id="login-err">密碼錯誤</div>
+  </div>
+</div>
+
 <!-- Members Panel -->
-<div id="members-panel" class="panel-overlay hidden" onclick="closePanel('members',event)">
+<div id="members-panel" class="overlay hidden" onclick="closePanel('members',event)">
   <div class="panel-box" onclick="event.stopPropagation()">
     <div class="panel-title" id="members-panel-title">👤 成員管理</div>
     <div class="panel-row">
@@ -170,25 +253,65 @@
   </div>
 </div>
 
-<!-- Meetings Panel -->
-<div id="meetings-panel" class="panel-overlay hidden" onclick="closePanel('meetings',event)">
+<!-- Events Panel -->
+<div id="events-panel" class="overlay hidden" onclick="closePanel('events',event)">
   <div class="panel-box" onclick="event.stopPropagation()">
-    <div class="panel-title">📌 科會 / 會議管理</div>
-    <div class="panel-row">
-      <input class="panel-input" id="new-meeting-title" placeholder="會議名稱" value="科會" style="min-width:80px">
-      <input class="panel-input" id="new-meeting-date" type="date" style="min-width:130px">
-      <button class="panel-btn green" onclick="addMeetingDate()">新增</button>
+    <div class="panel-title">🏷 標示管理（兩組共用）</div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">新增標示</div>
+      <div class="panel-row">
+        <input class="panel-input" id="new-ev-name" placeholder="名稱（例：科長休假）" style="min-width:120px">
+        <input type="color" class="color-pick" id="new-ev-color" value="#b07040">
+      </div>
+      <div class="panel-row">
+        <input class="panel-input" id="new-ev-date" type="date">
+        <button class="panel-btn" onclick="addEvDate()">新增日期</button>
+      </div>
     </div>
-    <div id="meeting-list"></div>
+    <div class="panel-sec">
+      <div class="panel-sec-title">現有標示</div>
+      <div id="ev-list"></div>
+    </div>
   </div>
 </div>
+
+<!-- Swap Request Modal -->
+<div id="swap-req-modal" class="overlay hidden" onclick="closeSwapReqModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <span style="font-size:14px;font-weight:600">🔄 申請換班</span>
+      <button onclick="closeSwapReqModal()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1">✕</button>
+    </div>
+    <!-- Step 1 -->
+    <div id="swap-step1">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">步驟 1：選擇你的留守日期</div>
+      <select id="swap-date1" class="panel-input" style="width:100%;margin-bottom:14px" onchange="onSwapDate1Change()">
+        <option value="">— 選擇日期 —</option>
+      </select>
+      <div id="swap-date1-info" style="font-size:12px;color:var(--text2);min-height:18px;padding:8px 10px;background:var(--bg2);border-radius:8px;text-align:center;margin-bottom:14px"></div>
+    </div>
+    <!-- Step 2 -->
+    <div id="swap-step2" class="hidden">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">步驟 2：選擇要換到的日期</div>
+      <select id="swap-date2" class="panel-input" style="width:100%;margin-bottom:14px" onchange="onSwapDate2Change()">
+        <option value="">— 選擇日期 —</option>
+      </select>
+      <div id="swap-preview" style="font-size:12px;color:var(--text2);padding:10px 12px;background:var(--bg2);border-radius:8px;text-align:center;margin-bottom:14px"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeSwapReqModal()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;font-size:13px">取消</button>
+      <button id="swap-submit-btn" onclick="submitSwapReq()" style="flex:1;padding:10px;border:none;border-radius:10px;background:var(--accent-a);color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;opacity:.4;pointer-events:none">送出申請</button>
+    </div>
+  </div>
+</div>
+
 
 <div id="toast" class="toast hidden"></div>
 <div id="saving" class="saving hidden">儲存中⋯</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, get, push, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBkKGkwKzUUBF0Yy76dkr1nt2TMSQM_Rhs",
@@ -199,9 +322,11 @@ const firebaseConfig = {
   messagingSenderId: "188344340143",
   appId: "1:188344340143:web:0379357221b81f8bf08e5a"
 };
-
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+
+// ── Constants ─────────────────────────────────────────────
+const ADMIN_PWD = "1234";
 
 const GROUPS = {
   A: {
@@ -220,8 +345,7 @@ const GROUPS = {
       "2026-06-15":"佑東","2026-06-16":"雯華","2026-06-17":"子鳴","2026-06-18":"銘傑",
       "2026-06-22":"鈺庭","2026-06-23":"祐瑋","2026-06-24":"政霖","2026-06-25":"楊穎","2026-06-26":"宣羽",
       "2026-06-29":"誌雄","2026-06-30":"政男"
-    },
-    meetings: [{id:1,title:"科會",color:"#b07040",dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]}]
+    }
   },
   B: {
     members: ["家善","銘杰","雯儀","凱翔","依芯","莉瑜","芝昀","敬明","冠璇","民昂","郁馨","世偉","獻文","麗君","宇聞","秋雅","怡菱","巍仁","杏真"],
@@ -240,121 +364,180 @@ const GROUPS = {
       "2026-06-15":"家善","2026-06-16":"敬明","2026-06-17":"獻文","2026-06-18":"麗君",
       "2026-06-22":"雯儀","2026-06-23":"宇聞","2026-06-24":"秋雅","2026-06-25":"怡菱","2026-06-26":"巍仁",
       "2026-06-29":"杏真","2026-06-30":"郁馨"
-    },
-    meetings: [{id:1,title:"科會",color:"#6b7c6b",dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]}]
+    }
   }
 };
 
+const INITIAL_EVENTS = [
+  {id:'meeting',name:'科會',color:'#b07040',dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]}
+];
+
 const TW_HOLIDAYS = {
-  "2026-01-01":"元旦","2026-02-16":"除夕","2026-02-17":"春節","2026-02-18":"春節","2026-02-19":"春節","2026-02-20":"春節",
-  "2026-04-03":"兒童節","2026-04-04":"清明節","2026-05-01":"勞動節","2026-06-19":"端午節",
-  "2026-09-25":"中秋節","2026-10-09":"國慶日","2026-10-10":"國慶日"
+  "2026-01-01":"元旦",
+  "2026-02-16":"除夕","2026-02-17":"春節","2026-02-18":"春節","2026-02-19":"春節","2026-02-20":"春節補假",
+  "2026-02-27":"和平紀念日補假",
+  "2026-04-03":"兒童節補假","2026-04-06":"清明節補假",
+  "2026-05-01":"勞動節",
+  "2026-06-19":"端午節",
+  "2026-09-25":"中秋節","2026-09-28":"教師節",
+  "2026-10-09":"國慶日補假",
+  "2026-10-26":"臺灣光復紀念日補假",
+  "2026-12-25":"行憲紀念日"
 };
 
 const COLORS_A=["#8b7355","#7a8b6b","#6b7a8b","#8b6b7a","#7a6b8b","#8b8b6b","#6b8b7a","#8b7a6b","#7a7a8b","#8b6b6b","#6b8b8b","#7a8b7a","#8b7a7a","#6b7a7a","#7a6b7a","#8b8b7a","#6b6b8b","#7a8b8b","#8b7a8b","#6b7a8b"];
 const COLORS_B=["#6b7c6b","#7c6b6b","#6b6b7c","#7c7c6b","#6b7c7c","#7c6b7c","#6b6b6b","#7c7c7c","#6b7a6b","#7a6b7a","#6b7a7a","#7a7a6b","#6b6b7a","#7a6b6b","#6b7c7a","#7c7a6b","#7a6b7c","#6b7a7c","#7c7a7c","#7a7c6b"];
 
-const now=new Date();
-let viewYear=now.getFullYear(),viewMonth=now.getMonth();
-let currentGroup='A',currentTab='calendar',swapMode=false,swapSelected=[];
-let liveData={A:{schedule:{},members:[],meetings:[]},B:{schedule:{},members:[],meetings:[]}};
-let initialized={A:false,B:false};
+// ── State ─────────────────────────────────────────────────
+const now = new Date();
+let viewYear=now.getFullYear(), viewMonth=now.getMonth();
+let currentGroup='A', currentTab='calendar';
+let swapMode=false, swapSelected=[];
+let expandedKey=null;
+let isAdmin=false;
+let liveData={A:{schedule:{},members:[]},B:{schedule:{},members:[]},events:[],targets:{A:12,B:12},swapReqs:{}};
 
-function getColors(){return currentGroup==='A'?COLORS_A:COLORS_B;}
-function getAccent(){return currentGroup==='A'?'#8b7355':'#6b7c6b';}
-function getMemberColor(name){const m=liveData[currentGroup].members,idx=m.indexOf(name);return idx>=0?getColors()[idx%getColors().length]:'#a89f94';}
-function toKey(y,m,d){return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;}
-function isWeekend(y,m,d){const w=new Date(y,m,d).getDay();return w===0||w===6;}
-function getDaysInMonth(y,m){return new Date(y,m+1,0).getDate();}
-function getFirstDay(y,m){return new Date(y,m,1).getDay();}
+function getColors(){ return currentGroup==='A'?COLORS_A:COLORS_B; }
+function getAccent(){ return currentGroup==='A'?'#8b7355':'#6b7c6b'; }
+function getMemberColor(name){
+  const m=liveData[currentGroup].members, idx=m.indexOf(name);
+  return idx>=0?getColors()[idx%getColors().length]:'#a89f94';
+}
+function toKey(y,m,d){ return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
+function isWeekend(y,m,d){ const w=new Date(y,m,d).getDay(); return w===0||w===6; }
+function getDaysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function getFirstDay(y,m){ return new Date(y,m,1).getDay(); }
 
-// Seed + listen
-async function initGroup(g){
-  const ss=await get(ref(db,`roster/${g}/schedule`));
-  const sm=await get(ref(db,`roster/${g}/members`));
-  const smt=await get(ref(db,`roster/${g}/meetings`));
-  if(!ss.exists()) await set(ref(db,`roster/${g}/schedule`),GROUPS[g].schedule);
-  if(!sm.exists()) await set(ref(db,`roster/${g}/members`),GROUPS[g].members);
-  if(!smt.exists()) await set(ref(db,`roster/${g}/meetings`),GROUPS[g].meetings);
-
-  onValue(ref(db,`roster/${g}/schedule`),snap=>{
-    liveData[g].schedule={...GROUPS[g].schedule,...(snap.val()||{})};
-    if(g===currentGroup)render();
-  });
-  onValue(ref(db,`roster/${g}/members`),snap=>{
-    liveData[g].members=snap.val()||[...GROUPS[g].members];
-    if(g===currentGroup)render();
-  });
-  onValue(ref(db,`roster/${g}/meetings`),snap=>{
-    liveData[g].meetings=snap.val()||JSON.parse(JSON.stringify(GROUPS[g].meetings));
-    if(g===currentGroup)render();
-  });
-  initialized[g]=true;
+// Check if date is blocked (holiday or event marked as holiday)
+function isBlocked(key){
+  if(TW_HOLIDAYS[key]) return true;
+  // Events whose name contains 假 are treated as blocked for auto-assign
+  return (liveData.events||[]).some(ev=>ev.name.includes('假')&&(ev.dates||[]).includes(key));
 }
 
-Promise.all(['A','B'].map(g=>initGroup(g))).then(()=>{
-  document.getElementById('loading').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  render();
-}).catch(()=>{
-  // fallback: show with initial data even if Firebase fails
-  ['A','B'].forEach(g=>{
-    liveData[g].schedule={...GROUPS[g].schedule};
-    liveData[g].members=[...GROUPS[g].members];
-    liveData[g].meetings=JSON.parse(JSON.stringify(GROUPS[g].meetings));
-  });
-  document.getElementById('loading').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  render();
-});
+// ── Firebase ───────────────────────────────────────────────
+async function initFirebase(){
+  try{
+    for(const g of ['A','B']){
+      const ss=await get(ref(db,`roster/${g}/schedule`));
+      const sm=await get(ref(db,`roster/${g}/members`));
+      if(!ss.exists()) await set(ref(db,`roster/${g}/schedule`),GROUPS[g].schedule);
+      if(!sm.exists()) await set(ref(db,`roster/${g}/members`),GROUPS[g].members);
+      onValue(ref(db,`roster/${g}/schedule`),snap=>{liveData[g].schedule={...GROUPS[g].schedule,...(snap.val()||{})};if(g===currentGroup)render();});
+      onValue(ref(db,`roster/${g}/members`),snap=>{liveData[g].members=snap.val()||[...GROUPS[g].members];if(g===currentGroup)render();});
+    }
+    const se=await get(ref(db,'roster/shared/events'));
+    if(!se.exists()) await set(ref(db,'roster/shared/events'),INITIAL_EVENTS);
+    onValue(ref(db,'roster/shared/events'),snap=>{liveData.events=snap.val()||JSON.parse(JSON.stringify(INITIAL_EVENTS));render();});
 
-function saveSchedule(){
+    const st=await get(ref(db,'roster/shared/targets'));
+    if(!st.exists()) await set(ref(db,'roster/shared/targets'),{A:12,B:12});
+    onValue(ref(db,'roster/shared/targets'),snap=>{liveData.targets=snap.val()||{A:12,B:12};});
+
+    onValue(ref(db,'roster/shared/swapReqs'),snap=>{
+      liveData.swapReqs=snap.val()||{};
+      updateSwapNotif();
+      if(currentTab==='swap') renderSwap();
+    });
+  }catch(e){
+    ['A','B'].forEach(g=>{liveData[g].schedule={...GROUPS[g].schedule};liveData[g].members=[...GROUPS[g].members];});
+    liveData.events=JSON.parse(JSON.stringify(INITIAL_EVENTS));
+  }
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  render();
+}
+initFirebase();
+
+function saveSched(){
   document.getElementById('saving').classList.remove('hidden');
   set(ref(db,`roster/${currentGroup}/schedule`),liveData[currentGroup].schedule)
     .then(()=>setTimeout(()=>document.getElementById('saving').classList.add('hidden'),800));
 }
-function saveMembers(){set(ref(db,`roster/${currentGroup}/members`),liveData[currentGroup].members);}
-function saveMeetings(){set(ref(db,`roster/${currentGroup}/meetings`),liveData[currentGroup].meetings);}
+function saveMembers(){ set(ref(db,`roster/${currentGroup}/members`),liveData[currentGroup].members); }
+function saveEvents(){ set(ref(db,'roster/shared/events'),liveData.events); }
+function saveTargets(){ set(ref(db,'roster/shared/targets'),liveData.targets); }
 
+// ── Render Header ─────────────────────────────────────────
+function renderHeader(){
+  const el=document.getElementById('header-btns');
+  if(isAdmin){
+    el.innerHTML=`
+      <button class="icon-btn auto" onclick="autoAssign()">🎲 自動排班</button>
+      <button class="icon-btn danger" onclick="confirmClear()">🗑 清除</button>
+      <button class="icon-btn" onclick="togglePanel('events')">🏷 標示</button>
+      <button class="icon-btn" onclick="togglePanel('members')">👤 成員</button>
+      <button class="icon-btn admin-on" onclick="logoutAdmin()">🔐 管理員</button>`;
+  } else {
+    el.innerHTML=`
+      <button class="icon-btn" onclick="openSwapReqModal()">🔄 申請換班</button>
+      <button class="icon-btn" onclick="showLoginModal()">🔐 管理員</button>`;
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────
 function render(){
   document.getElementById('month-label').textContent=`${viewYear} 年 ${viewMonth+1} 月`;
   document.getElementById('group-a').className='group-tab'+(currentGroup==='A'?' active-a':'');
   document.getElementById('group-b').className='group-tab'+(currentGroup==='B'?' active-b':'');
   document.getElementById('members-panel-title').textContent=`👤 ${currentGroup} 組成員管理`;
-  if(currentTab==='calendar')renderCalendar();else renderList();
-  renderMemberTags();renderMeetingList();
+  renderHeader();
+  renderLegend();
+  if(currentTab==='calendar') renderCalendar();
+  else if(currentTab==='list') renderList();
+  else if(currentTab==='stats') renderStats();
+  else if(currentTab==='swap') renderSwap();
+  renderMemberTags();
+  renderEvList();
 }
 
+function renderLegend(){
+  let html='<span>🔴 假日</span>';
+  (liveData.events||[]).forEach(ev=>{html+=`<span style="color:${ev.color}">🚩${ev.name}</span>`;});
+  document.getElementById('legend').innerHTML=html;
+}
+
+function getEvsForDay(key){ return (liveData.events||[]).filter(ev=>(ev.dates||[]).includes(key)); }
+
 function renderCalendar(){
-  const grid=document.getElementById('calendar-grid');grid.innerHTML='';
-  const days=getDaysInMonth(viewYear,viewMonth),first=getFirstDay(viewYear,viewMonth);
-  const schedule=liveData[currentGroup].schedule,meetings=liveData[currentGroup].meetings;
-  let week=document.createElement('div');week.className='week-row';grid.appendChild(week);
+  const grid=document.getElementById('calendar-grid'); grid.innerHTML='';
+  const days=getDaysInMonth(viewYear,viewMonth), first=getFirstDay(viewYear,viewMonth);
+  const schedule=liveData[currentGroup].schedule;
+  let week=document.createElement('div'); week.className='week-row'; grid.appendChild(week);
   for(let i=0;i<first;i++){const e=document.createElement('div');e.className='day-cell empty';week.appendChild(e);}
   for(let d=1;d<=days;d++){
     if((first+d-1)%7===0&&d>1){week=document.createElement('div');week.className='week-row';grid.appendChild(week);}
     const key=toKey(viewYear,viewMonth,d);
-    const person=schedule[key],weekend=isWeekend(viewYear,viewMonth,d),holiday=TW_HOLIDAYS[key];
+    const person=schedule[key], weekend=isWeekend(viewYear,viewMonth,d), holiday=TW_HOLIDAYS[key];
     const isToday=d===now.getDate()&&viewMonth===now.getMonth()&&viewYear===now.getFullYear();
-    const isSelected=swapSelected.includes(key);
-    const dayMeetings=meetings.filter(m=>m.dates&&m.dates.includes(key));
-    const cell=document.createElement('div');cell.className='day-cell';
-    if(weekend&&!holiday)cell.classList.add('weekend');
-    if(holiday)cell.classList.add('holiday');
+    const dayEvs=getEvsForDay(key);
+    const isHolEv=dayEvs.some(ev=>ev.name.includes('假'));
+    const cell=document.createElement('div'); cell.className='day-cell';
+    if(weekend&&!holiday&&!isHolEv)cell.classList.add('weekend');
+    if(holiday||isHolEv)cell.classList.add('holiday');
     if(isToday)cell.classList.add('today');
-    if(isSelected)cell.classList.add('swap-selected');
-    if(!weekend&&!holiday)cell.onclick=()=>handleDayClick(d);
+    if(!weekend&&!holiday&&!isHolEv){
+      cell.onclick=()=>{
+        if(window.handleSwapReqDayClick&&window.handleSwapReqDayClick(key)){
+          // highlight selected
+          document.querySelectorAll('.day-cell').forEach(c=>c.classList.remove('swap-req-sel'));
+          if(swapReqDates.includes(key)) cell.style.outline='2px solid var(--accent-a)';
+          return;
+        }
+        if(isAdmin) openEditModal(key);
+      };
+    }
     const num=document.createElement('span');
-    num.className='day-num'+(isToday?' today':'')+(holiday?' holiday-num':'');
-    num.textContent=d;cell.appendChild(num);
-    if(holiday){const hn=document.createElement('span');hn.className='holiday-name';hn.textContent=holiday;cell.appendChild(hn);}
-    if(person&&!weekend&&!holiday){
+    num.className='day-num'+(isToday?' today':'')+(holiday||isHolEv?' hol':'');
+    num.textContent=d; cell.appendChild(num);
+    if(holiday){const hn=document.createElement('span');hn.className='hol-name';hn.textContent=holiday;cell.appendChild(hn);}
+    if(person&&!weekend&&!holiday&&!isHolEv){
       const pb=document.createElement('span');pb.className='person-badge';
       const c=getMemberColor(person);pb.style.background=c+'18';pb.style.color=c;pb.textContent=person;cell.appendChild(pb);
     }
-    dayMeetings.forEach(mt=>{
-      const mb=document.createElement('span');mb.className='meeting-badge';
-      mb.style.background=mt.color+'15';mb.style.color=mt.color;mb.textContent='📌'+mt.title;cell.appendChild(mb);
+    dayEvs.forEach(ev=>{
+      const mb=document.createElement('span');mb.className='ev-badge';
+      mb.style.background=ev.color+'18';mb.style.color=ev.color;mb.textContent='🚩'+ev.name;cell.appendChild(mb);
     });
     week.appendChild(cell);
   }
@@ -363,152 +546,554 @@ function renderCalendar(){
 }
 
 function renderList(){
-  const prefix=`${viewYear}-${String(viewMonth+1).padStart(2,"0")}`;
-  const schedule=liveData[currentGroup].schedule,meetings=liveData[currentGroup].meetings;
-  const keys=Object.keys(schedule).filter(k=>k.startsWith(prefix)).sort();
-  const el=document.getElementById('list-view');el.innerHTML='';
+  const el=document.getElementById('list-view'); el.innerHTML='';
+  const schedule=liveData[currentGroup].schedule, members=liveData[currentGroup].members;
   const WD=['日','一','二','三','四','五','六'];
-  if(!keys.length){el.innerHTML='<div class="list-empty">本月尚無排班資料</div>';return;}
-  keys.forEach(k=>{
-    const d=new Date(k+'T00:00:00'),person=schedule[k],holiday=TW_HOLIDAYS[k];
-    const dayMeetings=meetings.filter(m=>m.dates&&m.dates.includes(k));
+  const days=getDaysInMonth(viewYear,viewMonth);
+  const workdays=[];
+  for(let d=1;d<=days;d++){
+    const key=toKey(viewYear,viewMonth,d);
+    if(!isWeekend(viewYear,viewMonth,d)&&!isBlocked(key)) workdays.push(key);
+  }
+  if(!workdays.length){el.innerHTML='<div class="list-empty">本月尚無工作日</div>';return;}
+  workdays.forEach(k=>{
+    const d=new Date(k+'T00:00:00'), person=schedule[k];
+    const dayEvs=getEvsForDay(k);
+    const isExpanded=expandedKey===k;
     const item=document.createElement('div');
-    item.className='list-item'+(holiday?' holiday':'');
-    if(!holiday)item.onclick=()=>openEditModal(k);
-    const c=getMemberColor(person);
-    item.innerHTML=`<div class="list-left"><div><span class="list-date">${k.slice(5)}</span><span class="list-weekday">（${WD[d.getDay()]}）</span>${holiday?`<span class="list-holiday-label">🔴 ${holiday}</span>`:''}</div>${dayMeetings.map(mt=>`<span class="list-meeting" style="color:${mt.color}">📌 ${mt.title}</span>`).join('')}</div><span class="list-person" style="color:${holiday?'var(--red)':c}">${holiday?'假日':person||'—'}</span>`;
+    item.className='list-item'+((!person)?' unassigned':'');
+    const c=person?getMemberColor(person):'var(--text3)';
+    const evHtml=dayEvs.map(ev=>`<span class="list-ev" style="background:${ev.color}15;color:${ev.color};border:1px solid ${ev.color}33">🚩${ev.name}</span>`).join('');
+    item.innerHTML=`
+      <div class="list-item-top">
+        <div><span class="list-date">${k.slice(5)}</span><span class="list-wd">（${WD[d.getDay()]}）</span></div>
+        <span class="list-person" style="color:${c}">${person||'未排班'}</span>
+      </div>
+      ${dayEvs.length?`<div class="list-evs">${evHtml}</div>`:''}
+      ${isExpanded&&isAdmin?`<div class="inline-assign">
+        <div class="inline-title">指派人員</div>
+        <div class="inline-btns">
+          <button class="inline-btn clr" onclick="inlineAssign(event,'${k}','')">清除</button>
+          ${members.map((m,i)=>{
+            const mc=getColors()[i%getColors().length];
+            const sel=schedule[k]===m;
+            return `<button class="inline-btn${sel?' sel':''}" style="background:${mc}15;border-color:${sel?mc:mc+'44'};color:${mc}" onclick="inlineAssign(event,'${k}','${m}')">${m}</button>`;
+          }).join('')}
+        </div>
+      </div>`:''}`;
+    if(isAdmin) item.onclick=(e)=>{if(e.target.classList.contains('inline-btn'))return;expandedKey=isExpanded?null:k;renderList();};
     el.appendChild(item);
   });
 }
 
+function renderStats(){
+  const el=document.getElementById('stats-view'); el.innerHTML='';
+  const schedule=liveData[currentGroup].schedule, members=liveData[currentGroup].members;
+  const target=liveData.targets[currentGroup]||12;
+  const yearCounts={}, allDates={}, monthCounts={}, monthDates={};
+  members.forEach(m=>{yearCounts[m]=0;allDates[m]=[];monthCounts[m]=0;monthDates[m]=[];});
+  Object.entries(schedule).sort().forEach(([k,v])=>{
+    if(k>='2026-04-01'&&yearCounts[v]!==undefined){yearCounts[v]++;allDates[v].push(k.slice(5));}
+  });
+  const curPfx=`${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
+  Object.entries(schedule).filter(([k])=>k.startsWith(curPfx)).sort().forEach(([k,v])=>{
+    if(monthCounts[v]!==undefined){monthCounts[v]++;monthDates[v].push(k.slice(5));}
+  });
+
+  const header=document.createElement('div');
+  header.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-top:4px;';
+  header.innerHTML=`
+    <div style="font-size:13px;font-weight:600">${viewYear}年${viewMonth+1}月統計</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:11px;color:var(--text3)">全年目標</span>
+      ${isAdmin?`<input type="number" min="1" max="50" value="${target}" id="target-input"
+        style="width:44px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:4px 6px;font-size:12px;color:var(--text);text-align:center;font-family:inherit"
+        onchange="updateTarget(this.value)">`:`<strong style="font-size:13px">${target}</strong>`}
+      <span style="font-size:11px;color:var(--text3)">天</span>
+    </div>`;
+  el.appendChild(header);
+
+  const yearCard=document.createElement('div'); yearCard.className='stats-card';
+  yearCard.innerHTML='<div class="stats-title">全年累積進度（4月起）</div>';
+  [...members].sort((a,b)=>yearCounts[b]-yearCounts[a]).forEach(m=>{
+    const c=getColors()[members.indexOf(m)%getColors().length];
+    const done=yearCounts[m], pct=Math.min(100,Math.round(done/target*100));
+    const barColor=done>=target?'#6b8b6b':done>=target*0.7?c:'#c0614a';
+    const row=document.createElement('div');
+    row.style.cssText='padding:8px 0;border-bottom:1px solid var(--border);';
+    row.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:500;color:${c}">${m}</span>
+        <span style="font-size:13px;font-weight:700;color:${barColor}">${done}<span style="color:var(--text3);font-weight:400;font-size:11px"> / ${target} 天</span></span>
+      </div>
+      <div style="background:var(--bg2);border-radius:4px;height:5px;overflow:hidden;margin-bottom:4px">
+        <div style="height:100%;border-radius:4px;background:${barColor};width:${pct}%"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">${
+        allDates[m].map(d=>`<span style="font-size:9px;background:${c}12;color:${c};border:1px solid ${c}28;border-radius:6px;padding:1px 5px">${d}</span>`).join('')
+      }${!allDates[m].length?'<span style="font-size:10px;color:var(--text3)">尚未排班</span>':''}</div>`;
+    yearCard.appendChild(row);
+  });
+  el.appendChild(yearCard);
+
+  const mCard=document.createElement('div'); mCard.className='stats-card'; mCard.style.marginTop='8px';
+  mCard.innerHTML=`<div class="stats-title">${viewMonth+1}月值班</div>`;
+  const sortedM=members.filter(m=>monthCounts[m]>0).sort((a,b)=>monthCounts[b]-monthCounts[a]);
+  if(sortedM.length){
+    sortedM.forEach(m=>{
+      const c=getColors()[members.indexOf(m)%getColors().length];
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);';
+      row.innerHTML=`<div style="min-width:48px;font-size:12px;font-weight:600;color:${c}">${m}</div>
+        <div style="flex:1"><span style="font-size:15px;font-weight:700;color:${c}">${monthCounts[m]}</span><span style="font-size:10px;color:var(--text3);margin-left:2px">天</span>
+        <span style="margin-left:8px">${monthDates[m].map(d=>`<span style="font-size:9px;background:${c}12;color:${c};border:1px solid ${c}28;border-radius:6px;padding:1px 5px;margin-right:2px">${d}</span>`).join('')}</span></div>`;
+      mCard.appendChild(row);
+    });
+  } else { mCard.innerHTML+='<div style="color:var(--text3);font-size:12px;padding:6px 0">本月尚無排班</div>'; }
+  const unassigned=members.filter(m=>monthCounts[m]===0);
+  if(unassigned.length){
+    const urow=document.createElement('div'); urow.style.cssText='padding-top:8px;display:flex;flex-wrap:wrap;gap:4px;';
+    urow.innerHTML=`<span style="font-size:10px;color:var(--text3);width:100%;margin-bottom:2px">本月未排班</span>${
+      unassigned.map(m=>{const c=getColors()[members.indexOf(m)%getColors().length];
+        return `<span style="font-size:11px;color:${c};opacity:.5;background:${c}0d;border:1px solid ${c}22;border-radius:10px;padding:2px 8px">${m}</span>`;}).join('')}`;
+    mCard.appendChild(urow);
+  }
+  el.appendChild(mCard);
+}
+
+// ── Swap Requests ─────────────────────────────────────────
+function updateSwapNotif(){
+  const pending=Object.values(liveData.swapReqs||{}).filter(r=>r.status==='pending');
+  document.getElementById('swap-notif').classList.toggle('hidden', pending.length===0);
+}
+
+// Track selected swap req IDs for deletion
+let selectedSwapIds = new Set();
+
+function renderSwap(){
+  const el=document.getElementById('swap-view'); el.innerHTML='';
+  const reqs=liveData.swapReqs||{};
+
+  // Auto-cleanup expired (duty date + 7 days)
+  const toDelete=[];
+  Object.entries(reqs).forEach(([id,r])=>{
+    if(r.status!=='pending'){
+      const dutyDate=new Date(Math.max(new Date(r.date1),new Date(r.date2)));
+      const expire=new Date(dutyDate); expire.setDate(expire.getDate()+7);
+      if(new Date()>expire) toDelete.push(id);
+    }
+  });
+  if(toDelete.length){
+    const upd={};
+    toDelete.forEach(id=>{upd[`roster/shared/swapReqs/${id}`]=null;});
+    update(ref(db),upd);
+  }
+
+  const pending=Object.entries(reqs).filter(([,r])=>r.status==='pending').sort((a,b)=>b[1].time-a[1].time);
+  const done=Object.entries(reqs).filter(([,r])=>r.status!=='pending').sort((a,b)=>b[1].time-a[1].time).slice(0,50);
+
+  const title=document.createElement('div');
+  title.style.cssText='font-size:13px;font-weight:600;margin-bottom:10px;padding-top:4px;';
+  title.textContent='🔄 換班紀錄';
+  el.appendChild(title);
+
+  // ── 一般人員：顯示待審核 ──
+  if(!isAdmin){
+    if(pending.length){
+      const ph=document.createElement('div'); ph.className='stats-title'; ph.style.marginBottom='6px';
+      ph.textContent=`待審核申請（${pending.length}）`;
+      el.appendChild(ph);
+      pending.forEach(([id,r])=>{
+        const s=liveData[r.group]?.schedule||{};
+        const p1=s[r.date1]||'未排班', p2=s[r.date2]||'未排班';
+        const div=document.createElement('div'); div.className='swap-req pending';
+        div.innerHTML=`
+          <div class="swap-req-head">
+            <span class="swap-req-info">${r.group}組 換班申請</span>
+            <span class="badge-pending">⏳ 待審核</span>
+          </div>
+          <div class="swap-req-detail" style="margin-bottom:0">📅 ${r.date1}（${p1}）⇄ ${r.date2}（${p2}）</div>`;
+        el.appendChild(div);
+      });
+    } else {
+      const note=document.createElement('div');
+      note.style.cssText='font-size:12px;color:var(--text3);margin-bottom:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;';
+      note.textContent='目前沒有待審核的換班申請';
+      el.appendChild(note);
+    }
+    if(done.length){
+      const dh=document.createElement('div'); dh.className='stats-title'; dh.style.cssText='margin-top:12px;margin-bottom:6px;';
+      dh.textContent='歷史紀錄';
+      el.appendChild(dh);
+      done.forEach(([id,r])=>{
+        const p1=r.p1_orig||'未排班', p2=r.p2_orig||'未排班';
+        const div=document.createElement('div'); div.className=`swap-req ${r.status}`;
+        div.innerHTML=`
+          <div class="swap-req-head">
+            <span class="swap-req-info">${r.group}組</span>
+            <span class="badge-${r.status}">${r.status==='approved'?'✓ 已核准':'✕ 已拒絕'}</span>
+          </div>
+          <div class="swap-req-detail" style="margin-bottom:0">${r.date1}（${p1}）⇄ ${r.date2}（${p2}）</div>`;
+        el.appendChild(div);
+      });
+    }
+    if(!pending.length&&!done.length) el.innerHTML+='<div class="list-empty">目前沒有換班紀錄</div>';
+    return;
+  }
+
+  // ── 管理員視角 ──
+  // 待審核
+  if(pending.length){
+    const ph=document.createElement('div'); ph.className='stats-title'; ph.style.marginBottom='6px';
+    ph.textContent=`待審核（${pending.length}）`;
+    el.appendChild(ph);
+    pending.forEach(([id,r])=>{
+      const s=liveData[r.group]?.schedule||{};
+      const p1=s[r.date1]||'未排班', p2=s[r.date2]||'未排班';
+      const div=document.createElement('div'); div.className='swap-req pending';
+      div.innerHTML=`
+        <div class="swap-req-head">
+          <span class="swap-req-info">${r.group}組 換班申請</span>
+          <span class="swap-req-time">${new Date(r.time).toLocaleDateString('zh-TW')}</span>
+        </div>
+        <div class="swap-req-detail">📅 ${r.date1}（${p1}）⇄ ${r.date2}（${p2}）</div>
+        <div class="swap-req-btns">
+          <button class="swap-approve" onclick="approveSwap('${id}')">✓ 核准</button>
+          <button class="swap-reject" onclick="rejectSwap('${id}')">✕ 拒絕</button>
+        </div>`;
+      el.appendChild(div);
+    });
+  }
+
+  // 歷史紀錄 + 多選刪除
+  if(done.length){
+    const dh=document.createElement('div');
+    dh.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-top:14px;margin-bottom:6px;';
+    dh.innerHTML=`<span class="stats-title" style="margin-bottom:0">歷史紀錄</span>`;
+    el.appendChild(dh);
+
+    // Select bar
+    const selBar=document.createElement('div'); selBar.className='select-bar'; selBar.id='sel-bar';
+    selBar.innerHTML=`
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2)">
+        <input type="checkbox" id="chk-all" onchange="toggleSelectAll(this.checked)"> 全選
+      </label>
+      <span style="font-size:11px;color:var(--text3)" id="sel-count">已選 0 筆</span>
+      <button class="select-bar-btn del" onclick="deleteSelectedSwaps()">🗑 刪除選取</button>`;
+    el.appendChild(selBar);
+
+    selectedSwapIds.clear();
+    done.forEach(([id,r])=>{
+      const p1=r.p1_orig||'未排班', p2=r.p2_orig||'未排班';
+      const div=document.createElement('div'); div.className=`swap-req ${r.status}`;
+      div.style.display='flex'; div.style.alignItems='flex-start'; div.style.gap='8px';
+      div.innerHTML=`
+        <label class="chk-row" style="padding-top:2px">
+          <input type="checkbox" class="swap-chk" data-id="${id}" onchange="updateSelCount()">
+        </label>
+        <div style="flex:1">
+          <div class="swap-req-head">
+            <span class="swap-req-info">${r.group}組</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:10px;color:var(--text3)">${new Date(r.time).toLocaleDateString('zh-TW')}</span>
+              <span class="badge-${r.status}">${r.status==='approved'?'✓ 已核准':'✕ 已拒絕'}</span>
+            </div>
+          </div>
+          <div class="swap-req-detail" style="margin-bottom:0">${r.date1}（${p1}）⇄ ${r.date2}（${p2}）</div>
+        </div>`;
+      el.appendChild(div);
+    });
+  }
+
+  if(!pending.length&&!done.length) el.innerHTML+='<div class="list-empty">目前沒有換班紀錄</div>';
+}
+
+window.updateSelCount=function(){
+  const chks=document.querySelectorAll('.swap-chk:checked');
+  const all=document.querySelectorAll('.swap-chk');
+  document.getElementById('sel-count').textContent=`已選 ${chks.length} 筆`;
+  const allChk=document.getElementById('chk-all');
+  if(allChk) allChk.checked=chks.length===all.length&&all.length>0;
+};
+window.toggleSelectAll=function(checked){
+  document.querySelectorAll('.swap-chk').forEach(c=>{c.checked=checked;});
+  updateSelCount();
+};
+window.deleteSelectedSwaps=function(){
+  const ids=[...document.querySelectorAll('.swap-chk:checked')].map(c=>c.dataset.id);
+  if(!ids.length){showToast('請先勾選要刪除的紀錄');return;}
+  const upd={};
+  ids.forEach(id=>{upd[`roster/shared/swapReqs/${id}`]=null;});
+  update(ref(db),upd);
+  showToast(`已刪除 ${ids.length} 筆紀錄`);
+};
+
+window.approveSwap=function(id){
+  const r=liveData.swapReqs[id]; if(!r) return;
+  const s={...liveData[r.group].schedule};
+  const p1=s[r.date1]||'', p2=s[r.date2]||'';
+  s[r.date1]=p2; s[r.date2]=p1;
+  if(!s[r.date1])delete s[r.date1]; if(!s[r.date2])delete s[r.date2];
+  liveData[r.group].schedule=s;
+  set(ref(db,`roster/${r.group}/schedule`),s);
+  set(ref(db,`roster/shared/swapReqs/${id}`),{...r,status:'approved',p1_orig:p1,p2_orig:p2});
+  showToast('✅ 已核准換班');
+};
+window.rejectSwap=function(id){
+  const r=liveData.swapReqs[id]; if(!r) return;
+  set(ref(db,`roster/shared/swapReqs/${id}`),{...r,status:'rejected'});
+  showToast('已拒絕');
+};
+
 function renderMemberTags(){
-  const el=document.getElementById('member-tags');el.innerHTML='';
+  const el=document.getElementById('member-tags'); el.innerHTML='';
   liveData[currentGroup].members.forEach((m,i)=>{
     const c=getColors()[i%getColors().length];
-    const tag=document.createElement('div');tag.className='member-tag';tag.style.borderColor=c+'44';
-    tag.innerHTML=`<span class="member-tag-name" style="color:${c}">${m}</span><button class="member-tag-remove" onclick="removeMember('${m}')">✕</button>`;
+    const tag=document.createElement('div'); tag.className='member-tag'; tag.style.borderColor=c+'44';
+    tag.innerHTML=`<span class="member-tag-name" style="color:${c}">${m}</span><button class="member-tag-rm" onclick="removeMember('${m}')">✕</button>`;
     el.appendChild(tag);
   });
 }
 
-function renderMeetingList(){
-  const el=document.getElementById('meeting-list');el.innerHTML='';
-  const meetings=liveData[currentGroup].meetings;
-  if(!meetings||!meetings.length){el.innerHTML='<div style="color:var(--text3);font-size:13px">尚無會議排程</div>';return;}
-  meetings.forEach(mt=>{
-    const sec=document.createElement('div');sec.className='meeting-section';
-    sec.innerHTML=`<div class="meeting-section-title" style="color:${mt.color}">📌 ${mt.title}</div>`;
-    const dates=document.createElement('div');dates.className='meeting-dates';
-    (mt.dates||[]).forEach(d=>{
-      const tag=document.createElement('div');tag.className='meeting-date-tag';
-      tag.style.background=mt.color+'12';tag.style.border=`1px solid ${mt.color}33`;
-      tag.innerHTML=`<span class="meeting-date-text" style="color:${mt.color}">${d}</span><button class="meeting-date-remove" onclick="removeMeetingDate('${mt.title}','${d}')">✕</button>`;
-      dates.appendChild(tag);
-    });
-    sec.appendChild(dates);el.appendChild(sec);
+function renderEvList(){
+  const el=document.getElementById('ev-list'); el.innerHTML='';
+  if(!liveData.events?.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">尚無標示</div>';return;}
+  liveData.events.forEach(ev=>{
+    const item=document.createElement('div'); item.className='ev-item';
+    item.innerHTML=`<div class="ev-item-head"><span class="ev-dot" style="background:${ev.color}"></span>
+      <span class="ev-item-title">${ev.name}</span>
+      <button class="ev-item-rm" onclick="removeEv('${ev.id}')">刪除</button></div>
+      <div class="ev-dates">${(ev.dates||[]).map(d=>
+        `<span class="ev-date-chip" style="background:${ev.color}15;color:${ev.color};border:1px solid ${ev.color}33">${d}<button class="ev-date-rm" onclick="removeEvDate('${ev.id}','${d}')">✕</button></span>`
+      ).join('')}</div>`;
+    el.appendChild(item);
   });
 }
 
-window.changeMonth=function(dir){viewMonth+=dir;if(viewMonth<0){viewMonth=11;viewYear--;}if(viewMonth>11){viewMonth=0;viewYear++;}render();};
-window.switchTab=function(tab){
-  currentTab=tab;
-  document.getElementById('calendar-view').classList.toggle('hidden',tab!=='calendar');
-  document.getElementById('list-view').classList.toggle('hidden',tab!=='list');
-  document.getElementById('tab-calendar').classList.toggle('active',tab==='calendar');
-  document.getElementById('tab-list').classList.toggle('active',tab==='list');
-  render();
-};
-window.switchGroup=function(g){
-  currentGroup=g;swapMode=false;swapSelected=[];
-  document.getElementById('swap-btn').textContent='⇄ 換班';
-  document.getElementById('swap-btn').classList.remove('active');
-  document.getElementById('swap-banner').classList.add('hidden');
-  render();
-};
-window.toggleSwap=function(){
-  swapMode=!swapMode;swapSelected=[];
-  const btn=document.getElementById('swap-btn');
-  btn.textContent=swapMode?'✕ 取消':'⇄ 換班';btn.classList.toggle('active',swapMode);
-  document.getElementById('swap-banner').classList.toggle('hidden',!swapMode);
-  if(swapMode)document.getElementById('swap-banner').textContent='請點選第一個日期 →';
-  render();
-};
-function handleDayClick(day){
-  const key=toKey(viewYear,viewMonth,day);
-  if(swapMode){
-    if(swapSelected.includes(key)){swapSelected=swapSelected.filter(k=>k!==key);}
-    else if(swapSelected.length<2){
-      swapSelected.push(key);
-      document.getElementById('swap-banner').textContent=`已選 ${swapSelected[0].slice(5)}，再點第二個`;
-      if(swapSelected.length===2){
-        const[k1,k2]=swapSelected;const s=liveData[currentGroup].schedule;
-        const tmp=s[k1]||'';s[k1]=s[k2]||'';s[k2]=tmp;
-        if(!s[k1])delete s[k1];if(!s[k2])delete s[k2];
-        saveSchedule();swapSelected=[];swapMode=false;
-        document.getElementById('swap-btn').textContent='⇄ 換班';
-        document.getElementById('swap-btn').classList.remove('active');
-        document.getElementById('swap-banner').classList.add('hidden');
-        showToast('換班完成');render();return;
-      }
-    }
-    render();return;
+// ── Auto Assign ────────────────────────────────────────────
+window.autoAssign=function(){
+  const schedule=liveData[currentGroup].schedule, members=liveData[currentGroup].members;
+  if(!members.length){showToast('請先新增成員');return;}
+  const days=getDaysInMonth(viewYear,viewMonth);
+  const targets=[];
+  for(let d=1;d<=days;d++){
+    const key=toKey(viewYear,viewMonth,d);
+    if(!isWeekend(viewYear,viewMonth,d)&&!isBlocked(key)&&!schedule[key]) targets.push(key);
   }
-  openEditModal(key);
-}
+  if(!targets.length){showToast('本月已全部排班完成');return;}
+  const curPfx=`${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
+  const lastDuty={};
+  members.forEach(m=>lastDuty[m]=null);
+  Object.entries(schedule).sort().forEach(([k,v])=>{if(lastDuty[v]!==undefined&&(!lastDuty[v]||k>lastDuty[v]))lastDuty[v]=k;});
+  const yearCounts={};
+  members.forEach(m=>yearCounts[m]=0);
+  Object.entries(schedule).forEach(([k,v])=>{if(k>='2026-04-01'&&yearCounts[v]!==undefined)yearCounts[v]++;});
+  const newSched={...schedule};
+  let assigned=0, failed=0;
+  targets.forEach(key=>{
+    const minGap=18+Math.floor(Math.random()*3);
+    const eligible=members.filter(m=>{
+      if(!lastDuty[m]) return true;
+      return (new Date(key)-new Date(lastDuty[m]))/(1000*60*60*24)>=minGap;
+    });
+    if(!eligible.length){failed++;return;}
+    const curCounts={};
+    members.forEach(m=>curCounts[m]=0);
+    Object.entries(newSched).filter(([k])=>k.startsWith(curPfx)).forEach(([,v])=>{if(curCounts[v]!==undefined)curCounts[v]++;});
+    eligible.sort((a,b)=>{
+      const yd=(yearCounts[a]+(curCounts[a]||0))-(yearCounts[b]+(curCounts[b]||0));
+      return yd!==0?yd:(curCounts[a]||0)-(curCounts[b]||0);
+    });
+    const minTotal=(yearCounts[eligible[0]]||0)+(curCounts[eligible[0]]||0);
+    const pool=eligible.filter(m=>(yearCounts[m]||0)+(curCounts[m]||0)===minTotal);
+    const picked=pool[Math.floor(Math.random()*pool.length)];
+    newSched[key]=picked; lastDuty[picked]=key;
+    if(yearCounts[picked]!==undefined)yearCounts[picked]++;
+    assigned++;
+  });
+  liveData[currentGroup].schedule=newSched;
+  saveSched(); render();
+  showToast(`✅ 已排 ${assigned} 天${failed?`，${failed} 天間隔不足`:''}`);
+};
+
+window.confirmClear=function(){
+  document.getElementById('confirm-month').textContent=`${viewYear}年${viewMonth+1}月`;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+};
+window.closeConfirm=function(){document.getElementById('confirm-modal').classList.add('hidden');};
+window.clearMonth=function(){
+  const pfx=`${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
+  const s={...liveData[currentGroup].schedule};
+  Object.keys(s).forEach(k=>{if(k.startsWith(pfx))delete s[k];});
+  liveData[currentGroup].schedule=s;
+  saveSched(); closeConfirm(); render(); showToast('已清除本月排班');
+};
+
+// ── Admin Auth ─────────────────────────────────────────────
+window.showLoginModal=function(){document.getElementById('login-modal').classList.remove('hidden');document.getElementById('login-pwd').value='';document.getElementById('login-err').classList.add('hidden');};
+window.doLogin=function(){
+  const pwd=document.getElementById('login-pwd').value;
+  if(pwd===ADMIN_PWD){
+    isAdmin=true;
+    document.getElementById('login-modal').classList.add('hidden');
+    render(); showToast('✅ 管理員模式');
+  } else {
+    document.getElementById('login-err').classList.remove('hidden');
+  }
+};
+window.logoutAdmin=function(){isAdmin=false;render();showToast('已登出管理員');};
+
+// ── Interactions ───────────────────────────────────────────
+window.changeMonth=function(dir){viewMonth+=dir;if(viewMonth<0){viewMonth=11;viewYear--;}if(viewMonth>11){viewMonth=0;viewYear++;}expandedKey=null;render();};
+window.switchTab=function(tab){
+  currentTab=tab; expandedKey=null;
+  ['calendar','list','stats','swap'].forEach(t=>{
+    document.getElementById(t+'-view').classList.toggle('hidden',t!==tab);
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  render();
+};
+window.switchGroup=function(g){currentGroup=g;swapMode=false;swapSelected=[];expandedKey=null;document.getElementById('swap-banner').classList.add('hidden');render();};
+
 function openEditModal(key){
   document.getElementById('modal-title').textContent=`${key}　指派人員`;
-  const grid=document.getElementById('modal-grid');grid.innerHTML='';
-  const schedule=liveData[currentGroup].schedule,members=liveData[currentGroup].members;
-  const clearBtn=document.createElement('button');clearBtn.className='modal-btn';
+  const grid=document.getElementById('modal-grid'); grid.innerHTML='';
+  const schedule=liveData[currentGroup].schedule, members=liveData[currentGroup].members;
+  const clearBtn=document.createElement('button'); clearBtn.className='modal-btn';
   clearBtn.style.cssText='background:var(--bg2);color:var(--text3);border-style:dashed';
-  clearBtn.textContent='清除';clearBtn.onclick=()=>assignPerson(key,'');grid.appendChild(clearBtn);
+  clearBtn.textContent='清除'; clearBtn.onclick=()=>assignPerson(key,''); grid.appendChild(clearBtn);
   members.forEach((m,i)=>{
     const c=getColors()[i%getColors().length];
-    const btn=document.createElement('button');btn.className='modal-btn';
-    btn.style.background=c+'15';btn.style.borderColor=schedule[key]===m?c:c+'44';btn.style.color=c;
+    const btn=document.createElement('button'); btn.className='modal-btn';
+    btn.style.background=c+'15'; btn.style.borderColor=schedule[key]===m?c:c+'44'; btn.style.color=c;
     if(schedule[key]===m)btn.style.fontWeight='600';
-    btn.textContent=m;btn.onclick=()=>assignPerson(key,m);grid.appendChild(btn);
+    btn.textContent=m; btn.onclick=()=>assignPerson(key,m); grid.appendChild(btn);
   });
   document.getElementById('edit-modal').classList.remove('hidden');
 }
 function assignPerson(key,person){
   const s=liveData[currentGroup].schedule;
-  if(person==='')delete s[key];else s[key]=person;
-  saveSchedule();closeModal();showToast('已更新');render();
+  if(person==='')delete s[key]; else s[key]=person;
+  saveSched(); closeModal(); showToast('已更新'); render();
 }
-window.closeEditModal=function(e){if(e.target===document.getElementById('edit-modal'))closeModal();};
+window.closeEditModal=function(ev){if(ev.target===document.getElementById('edit-modal'))closeModal();};
 function closeModal(){document.getElementById('edit-modal').classList.add('hidden');}
 window.togglePanel=function(name){document.getElementById(name+'-panel').classList.toggle('hidden');};
-window.closePanel=function(name,e){if(e.target===document.getElementById(name+'-panel'))document.getElementById(name+'-panel').classList.add('hidden');};
+window.closePanel=function(name,ev){if(ev.target===document.getElementById(name+'-panel'))document.getElementById(name+'-panel').classList.add('hidden');};
+window.inlineAssign=function(e,key,person){
+  e.stopPropagation();
+  const s=liveData[currentGroup].schedule;
+  if(person==='')delete s[key]; else s[key]=person;
+  saveSched(); showToast('已更新'); renderList();
+};
 window.addMember=function(){
-  const input=document.getElementById('new-member-input');const name=input.value.trim();if(!name)return;
-  liveData[currentGroup].members.push(name);input.value='';
-  saveMembers();renderMemberTags();showToast('已新增 '+name);
+  const input=document.getElementById('new-member-input'); const name=input.value.trim(); if(!name)return;
+  liveData[currentGroup].members.push(name); input.value='';
+  saveMembers(); renderMemberTags(); showToast('已新增 '+name);
 };
 window.removeMember=function(name){
   liveData[currentGroup].members=liveData[currentGroup].members.filter(m=>m!==name);
-  saveMembers();renderMemberTags();showToast('已移除 '+name);
+  saveMembers(); renderMemberTags(); showToast('已移除 '+name);
 };
-window.addMeetingDate=function(){
-  const title=document.getElementById('new-meeting-title').value.trim();
-  const date=document.getElementById('new-meeting-date').value;
-  if(!title||!date)return;
-  const meetings=liveData[currentGroup].meetings;
-  const existing=meetings.find(m=>m.title===title);
-  if(existing){if(!existing.dates.includes(date))existing.dates.push(date);existing.dates.sort();}
-  else meetings.push({id:Date.now(),title,color:getAccent(),dates:[date]});
-  document.getElementById('new-meeting-date').value='';
-  saveMeetings();render();showToast('已新增');
+window.addEvDate=function(){
+  const name=document.getElementById('new-ev-name').value.trim();
+  const color=document.getElementById('new-ev-color').value;
+  const date=document.getElementById('new-ev-date').value;
+  if(!name||!date){showToast('請填名稱和日期');return;}
+  const existing=liveData.events.find(e=>e.name===name);
+  if(existing){if(!existing.dates.includes(date)){existing.dates.push(date);existing.dates.sort();}}
+  else liveData.events.push({id:'ev_'+Date.now(),name,color,dates:[date]});
+  document.getElementById('new-ev-date').value='';
+  saveEvents(); render(); showToast('已新增');
 };
-window.removeMeetingDate=function(title,date){
-  liveData[currentGroup].meetings=liveData[currentGroup].meetings
-    .map(m=>m.title===title?{...m,dates:m.dates.filter(d=>d!==date)}:m)
-    .filter(m=>m.dates.length>0);
-  saveMeetings();render();showToast('已移除');
+window.removeEv=function(id){liveData.events=liveData.events.filter(e=>e.id!==id);saveEvents();render();showToast('已刪除');};
+window.removeEvDate=function(id,date){
+  liveData.events=liveData.events.map(e=>e.id===id?{...e,dates:e.dates.filter(d=>d!==date)}:e).filter(e=>e.dates.length>0);
+  saveEvents(); render(); showToast('已移除');
 };
+window.updateTarget=function(val){
+  const n=parseInt(val); if(!n||n<1)return;
+  liveData.targets[currentGroup]=n; saveTargets(); renderStats(); showToast(`${currentGroup}組目標 ${n} 天`);
+};
+
+// ── Swap Request (general) ─────────────────────────────────
+// Swap selection state
+let swapReqDates=[];
+
+window.openSwapReqModal=function(){
+  // Populate step1 dropdown with all assigned workdays in current+adjacent months
+  const sched=liveData[currentGroup].schedule;
+  const sel1=document.getElementById('swap-date1');
+  sel1.innerHTML='<option value="">— 選擇你的留守日期 —</option>';
+  // Get all assigned days sorted
+  const assigned=Object.entries(sched).filter(([k,v])=>v).map(([k])=>k).sort();
+  assigned.forEach(k=>{
+    const p=sched[k];
+    const opt=document.createElement('option');
+    opt.value=k; opt.textContent=`${k.slice(5)}（${p}）`;
+    sel1.appendChild(opt);
+  });
+  // Reset
+  document.getElementById('swap-step2').classList.add('hidden');
+  document.getElementById('swap-step1').classList.remove('hidden');
+  document.getElementById('swap-date1-info').textContent='';
+  document.getElementById('swap-submit-btn').style.opacity='.4';
+  document.getElementById('swap-submit-btn').style.pointerEvents='none';
+  document.getElementById('swap-req-modal').classList.remove('hidden');
+};
+
+window.onSwapDate1Change=function(){
+  const d1=document.getElementById('swap-date1').value;
+  const sched=liveData[currentGroup].schedule;
+  if(!d1){ document.getElementById('swap-step2').classList.add('hidden'); return; }
+  const p1=sched[d1]||'未排班';
+  document.getElementById('swap-date1-info').textContent=`已選：${d1}（${p1}）`;
+  // Populate step2 dropdown
+  const sel2=document.getElementById('swap-date2');
+  sel2.innerHTML='<option value="">— 選擇要換到的日期 —</option>';
+  const assigned=Object.entries(sched).filter(([k,v])=>v&&k!==d1).map(([k])=>k).sort();
+  assigned.forEach(k=>{
+    const p=sched[k];
+    const opt=document.createElement('option');
+    opt.value=k; opt.textContent=`${k.slice(5)}（${p}）`;
+    sel2.appendChild(opt);
+  });
+  document.getElementById('swap-step2').classList.remove('hidden');
+  document.getElementById('swap-preview').textContent='請選擇第二個日期';
+  document.getElementById('swap-submit-btn').style.opacity='.4';
+  document.getElementById('swap-submit-btn').style.pointerEvents='none';
+};
+
+window.onSwapDate2Change=function(){
+  const d1=document.getElementById('swap-date1').value;
+  const d2=document.getElementById('swap-date2').value;
+  const sched=liveData[currentGroup].schedule;
+  const btn=document.getElementById('swap-submit-btn');
+  if(!d2){ btn.style.opacity='.4'; btn.style.pointerEvents='none'; return; }
+  const p1=sched[d1]||'未排班', p2=sched[d2]||'未排班';
+  document.getElementById('swap-preview').textContent=`${d1}（${p1}）⇄ ${d2}（${p2}）`;
+  btn.style.opacity='1'; btn.style.pointerEvents='auto';
+};
+
+window.closeSwapReqModal=function(ev){
+  if(!ev||ev.target===document.getElementById('swap-req-modal'))
+    document.getElementById('swap-req-modal').classList.add('hidden');
+};
+
+window.submitSwapReq=function(){
+  const d1=document.getElementById('swap-date1').value;
+  const d2=document.getElementById('swap-date2').value;
+  if(!d1||!d2){showToast('請選擇兩個日期');return;}
+  const req={group:currentGroup,date1:d1,date2:d2,status:'pending',time:Date.now()};
+  push(ref(db,'roster/shared/swapReqs'),req);
+  document.getElementById('swap-req-modal').classList.add('hidden');
+  showToast('✅ 換班申請已送出，等候審核');
+  switchTab('swap');
+};
+
 function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');
-  setTimeout(()=>t.classList.add('hidden'),2000);
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'),2200);
 }
 </script>
 </body>
