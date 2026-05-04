@@ -181,18 +181,20 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsof
         <button class="group-tab active-a" id="group-a" onclick="switchGroup('A')"><span class="group-dot" style="background:#8b7355"></span>A 查察組</button>
         <button class="group-tab" id="group-b" onclick="switchGroup('B')"><span class="group-dot" style="background:#6b7c6b"></span>B 查察組</button>
       </div>
-      <div class="view-tabs">
+      <div class="view-tabs" id="view-tabs-bar">
         <button class="view-tab active" id="tab-calendar" onclick="switchTab('calendar')">📅 月曆</button>
         <button class="view-tab" id="tab-list" onclick="switchTab('list')">📋 清單</button>
-        <button class="view-tab" id="tab-stats" onclick="switchTab('stats')">📊 統計</button>
+        <button class="view-tab hidden" id="tab-stats" onclick="switchTab('stats')">📊 統計</button>
         <button class="view-tab" id="tab-swap" onclick="switchTab('swap')">🔄 換班紀錄<span id="swap-notif" class="notif-dot hidden"></span></button>
       </div>
     </div>
   </div>
-  <div class="month-nav">
-    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
-    <span class="month-label" id="month-label"></span>
-    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+  <div style="background:var(--card);border-bottom:1px solid var(--border);padding:8px 20px 10px;position:sticky;top:var(--header-h,0);z-index:49;">
+    <div style="display:flex;align-items:center;justify-content:space-between;max-width:560px;margin:0 auto;">
+      <button onclick="changeMonth(-1)" style="background:var(--bg2);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:20px;color:var(--text);display:flex;align-items:center;justify-content:center;line-height:1;">‹</button>
+      <span id="month-label" style="font-size:15px;font-weight:600;color:var(--text)"></span>
+      <button onclick="changeMonth(1)" style="background:var(--bg2);border:1px solid var(--border);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:20px;color:var(--text);display:flex;align-items:center;justify-content:center;line-height:1;">›</button>
+    </div>
   </div>
   <div class="main">
     <div id="swap-banner" class="swap-banner hidden"></div>
@@ -282,22 +284,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','Microsof
       <span style="font-size:14px;font-weight:600">🔄 申請換班</span>
       <button onclick="closeSwapReqModal()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1">✕</button>
     </div>
-    <!-- Step 1 -->
-    <div id="swap-step1">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">步驟 1：選擇你的留守日期</div>
-      <select id="swap-date1" class="panel-input" style="width:100%;margin-bottom:14px" onchange="onSwapDate1Change()">
-        <option value="">— 選擇日期 —</option>
-      </select>
-      <div id="swap-date1-info" style="font-size:12px;color:var(--text2);min-height:18px;padding:8px 10px;background:var(--bg2);border-radius:8px;text-align:center;margin-bottom:14px"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px">日期 1</div>
+        <input type="date" id="swap-date1" class="panel-input" style="width:100%" onchange="onSwapDateChange()">
+      </div>
+      <div style="font-size:18px;color:var(--text3);padding-top:18px">⇄</div>
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px">日期 2</div>
+        <input type="date" id="swap-date2" class="panel-input" style="width:100%" onchange="onSwapDateChange()">
+      </div>
     </div>
-    <!-- Step 2 -->
-    <div id="swap-step2" class="hidden">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">步驟 2：選擇要換到的日期</div>
-      <select id="swap-date2" class="panel-input" style="width:100%;margin-bottom:14px" onchange="onSwapDate2Change()">
-        <option value="">— 選擇日期 —</option>
-      </select>
-      <div id="swap-preview" style="font-size:12px;color:var(--text2);padding:10px 12px;background:var(--bg2);border-radius:8px;text-align:center;margin-bottom:14px"></div>
-    </div>
+    <div id="swap-preview" style="font-size:12px;color:var(--text2);min-height:18px;padding:8px 10px;background:var(--bg2);border-radius:8px;text-align:center;margin-bottom:14px"></div>
     <div style="display:flex;gap:8px">
       <button onclick="closeSwapReqModal()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;font-size:13px">取消</button>
       <button id="swap-submit-btn" onclick="submitSwapReq()" style="flex:1;padding:10px;border:none;border-radius:10px;background:var(--accent-a);color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;opacity:.4;pointer-events:none">送出申請</button>
@@ -468,10 +466,15 @@ function renderHeader(){
       <button class="icon-btn" onclick="togglePanel('events')">🏷 標示</button>
       <button class="icon-btn" onclick="togglePanel('members')">👤 成員</button>
       <button class="icon-btn admin-on" onclick="logoutAdmin()">🔐 管理員</button>`;
+    // Show stats tab for admin
+    document.getElementById('tab-stats').classList.remove('hidden');
   } else {
     el.innerHTML=`
       <button class="icon-btn" onclick="openSwapReqModal()">🔄 申請換班</button>
       <button class="icon-btn" onclick="showLoginModal()">🔐 管理員</button>`;
+    // Hide stats tab, switch away if currently on stats
+    document.getElementById('tab-stats').classList.add('hidden');
+    if(currentTab==='stats'){ currentTab='calendar'; switchTab('calendar'); }
   }
 }
 
@@ -590,20 +593,37 @@ function renderStats(){
   const el=document.getElementById('stats-view'); el.innerHTML='';
   const schedule=liveData[currentGroup].schedule, members=liveData[currentGroup].members;
   const target=liveData.targets[currentGroup]||12;
+  const isGroupB = currentGroup==='B';
+
+  // Determine year boundary for B group (reset at 2027)
+  const yearStr = String(viewYear);
+  const startKey = isGroupB && viewYear>=2027 ? `${viewYear}-01-01` : '2026-04-01';
+  const endKey = `${viewYear}-12-31`;
+
+  // Count only within current view year (and for A, from Apr 2026)
   const yearCounts={}, allDates={}, monthCounts={}, monthDates={};
   members.forEach(m=>{yearCounts[m]=0;allDates[m]=[];monthCounts[m]=0;monthDates[m]=[];});
+
   Object.entries(schedule).sort().forEach(([k,v])=>{
-    if(k>='2026-04-01'&&yearCounts[v]!==undefined){yearCounts[v]++;allDates[v].push(k.slice(5));}
+    if(k>=startKey && k<=endKey && yearCounts[v]!==undefined){
+      yearCounts[v]++; allDates[v].push(k.slice(5));
+    }
   });
+
   const curPfx=`${viewYear}-${String(viewMonth+1).padStart(2,'0')}`;
   Object.entries(schedule).filter(([k])=>k.startsWith(curPfx)).sort().forEach(([k,v])=>{
     if(monthCounts[v]!==undefined){monthCounts[v]++;monthDates[v].push(k.slice(5));}
   });
 
+  // Header
   const header=document.createElement('div');
   header.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-top:4px;';
+  const yearNote = isGroupB && viewYear>=2027 ? `（${viewYear}年獨立計算）` : viewYear===2026 ? '（4月起）' : '';
   header.innerHTML=`
-    <div style="font-size:13px;font-weight:600">${viewYear}年${viewMonth+1}月統計</div>
+    <div>
+      <div style="font-size:13px;font-weight:600">${viewYear}年${viewMonth+1}月統計</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${yearNote}</div>
+    </div>
     <div style="display:flex;align-items:center;gap:6px">
       <span style="font-size:11px;color:var(--text3)">全年目標</span>
       ${isAdmin?`<input type="number" min="1" max="50" value="${target}" id="target-input"
@@ -613,40 +633,42 @@ function renderStats(){
     </div>`;
   el.appendChild(header);
 
+  // Year progress card
   const yearCard=document.createElement('div'); yearCard.className='stats-card';
-  yearCard.innerHTML='<div class="stats-title">全年累積進度（4月起）</div>';
+  yearCard.innerHTML='<div class="stats-title">全年累積進度</div>';
   [...members].sort((a,b)=>yearCounts[b]-yearCounts[a]).forEach(m=>{
-    const c=getColors()[members.indexOf(m)%getColors().length];
+    const c2=getColors()[members.indexOf(m)%getColors().length];
     const done=yearCounts[m], pct=Math.min(100,Math.round(done/target*100));
-    const barColor=done>=target?'#6b8b6b':done>=target*0.7?c:'#c0614a';
+    const barColor=done>=target?'#6b8b6b':done>=target*0.7?c2:'#c0614a';
     const row=document.createElement('div');
     row.style.cssText='padding:8px 0;border-bottom:1px solid var(--border);';
     row.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-        <span style="font-size:13px;font-weight:500;color:${c}">${m}</span>
+        <span style="font-size:13px;font-weight:500;color:${c2}">${m}</span>
         <span style="font-size:13px;font-weight:700;color:${barColor}">${done}<span style="color:var(--text3);font-weight:400;font-size:11px"> / ${target} 天</span></span>
       </div>
       <div style="background:var(--bg2);border-radius:4px;height:5px;overflow:hidden;margin-bottom:4px">
         <div style="height:100%;border-radius:4px;background:${barColor};width:${pct}%"></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">${
-        allDates[m].map(d=>`<span style="font-size:9px;background:${c}12;color:${c};border:1px solid ${c}28;border-radius:6px;padding:1px 5px">${d}</span>`).join('')
+        allDates[m].map(d=>`<span style="font-size:9px;background:${c2}12;color:${c2};border:1px solid ${c2}28;border-radius:6px;padding:1px 5px">${d}</span>`).join('')
       }${!allDates[m].length?'<span style="font-size:10px;color:var(--text3)">尚未排班</span>':''}</div>`;
     yearCard.appendChild(row);
   });
   el.appendChild(yearCard);
 
+  // Month card
   const mCard=document.createElement('div'); mCard.className='stats-card'; mCard.style.marginTop='8px';
   mCard.innerHTML=`<div class="stats-title">${viewMonth+1}月值班</div>`;
   const sortedM=members.filter(m=>monthCounts[m]>0).sort((a,b)=>monthCounts[b]-monthCounts[a]);
   if(sortedM.length){
     sortedM.forEach(m=>{
-      const c=getColors()[members.indexOf(m)%getColors().length];
+      const c2=getColors()[members.indexOf(m)%getColors().length];
       const row=document.createElement('div');
       row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);';
-      row.innerHTML=`<div style="min-width:48px;font-size:12px;font-weight:600;color:${c}">${m}</div>
-        <div style="flex:1"><span style="font-size:15px;font-weight:700;color:${c}">${monthCounts[m]}</span><span style="font-size:10px;color:var(--text3);margin-left:2px">天</span>
-        <span style="margin-left:8px">${monthDates[m].map(d=>`<span style="font-size:9px;background:${c}12;color:${c};border:1px solid ${c}28;border-radius:6px;padding:1px 5px;margin-right:2px">${d}</span>`).join('')}</span></div>`;
+      row.innerHTML=`<div style="min-width:48px;font-size:12px;font-weight:600;color:${c2}">${m}</div>
+        <div style="flex:1"><span style="font-size:15px;font-weight:700;color:${c2}">${monthCounts[m]}</span><span style="font-size:10px;color:var(--text3);margin-left:2px">天</span>
+        <span style="margin-left:8px">${monthDates[m].map(d=>`<span style="font-size:9px;background:${c2}12;color:${c2};border:1px solid ${c2}28;border-radius:6px;padding:1px 5px;margin-right:2px">${d}</span>`).join('')}</span></div>`;
       mCard.appendChild(row);
     });
   } else { mCard.innerHTML+='<div style="color:var(--text3);font-size:12px;padding:6px 0">本月尚無排班</div>'; }
@@ -654,12 +676,14 @@ function renderStats(){
   if(unassigned.length){
     const urow=document.createElement('div'); urow.style.cssText='padding-top:8px;display:flex;flex-wrap:wrap;gap:4px;';
     urow.innerHTML=`<span style="font-size:10px;color:var(--text3);width:100%;margin-bottom:2px">本月未排班</span>${
-      unassigned.map(m=>{const c=getColors()[members.indexOf(m)%getColors().length];
-        return `<span style="font-size:11px;color:${c};opacity:.5;background:${c}0d;border:1px solid ${c}22;border-radius:10px;padding:2px 8px">${m}</span>`;}).join('')}`;
+      unassigned.map(m=>{const c2=getColors()[members.indexOf(m)%getColors().length];
+        return `<span style="font-size:11px;color:${c2};opacity:.5;background:${c2}0d;border:1px solid ${c2}22;border-radius:10px;padding:2px 8px">${m}</span>`;}).join('')}`;
     mCard.appendChild(urow);
   }
   el.appendChild(mCard);
 }
+
+
 
 // ── Swap Requests ─────────────────────────────────────────
 function updateSwapNotif(){
@@ -1021,58 +1045,38 @@ window.updateTarget=function(val){
 let swapReqDates=[];
 
 window.openSwapReqModal=function(){
-  // Populate step1 dropdown with all assigned workdays in current+adjacent months
-  const sched=liveData[currentGroup].schedule;
-  const sel1=document.getElementById('swap-date1');
-  sel1.innerHTML='<option value="">— 選擇你的留守日期 —</option>';
-  // Get all assigned days sorted
-  const assigned=Object.entries(sched).filter(([k,v])=>v).map(([k])=>k).sort();
-  assigned.forEach(k=>{
-    const p=sched[k];
-    const opt=document.createElement('option');
-    opt.value=k; opt.textContent=`${k.slice(5)}（${p}）`;
-    sel1.appendChild(opt);
-  });
-  // Reset
-  document.getElementById('swap-step2').classList.add('hidden');
-  document.getElementById('swap-step1').classList.remove('hidden');
-  document.getElementById('swap-date1-info').textContent='';
+  // Set min date to today, default both inputs to today
+  const todayStr=new Date().toISOString().slice(0,10);
+  const d1el=document.getElementById('swap-date1');
+  const d2el=document.getElementById('swap-date2');
+  d1el.value=''; d2el.value='';
+  d1el.min=todayStr; d2el.min=todayStr;
+  document.getElementById('swap-preview').textContent='請選擇兩個日期';
   document.getElementById('swap-submit-btn').style.opacity='.4';
   document.getElementById('swap-submit-btn').style.pointerEvents='none';
   document.getElementById('swap-req-modal').classList.remove('hidden');
 };
 
-window.onSwapDate1Change=function(){
-  const d1=document.getElementById('swap-date1').value;
-  const sched=liveData[currentGroup].schedule;
-  if(!d1){ document.getElementById('swap-step2').classList.add('hidden'); return; }
-  const p1=sched[d1]||'未排班';
-  document.getElementById('swap-date1-info').textContent=`已選：${d1}（${p1}）`;
-  // Populate step2 dropdown
-  const sel2=document.getElementById('swap-date2');
-  sel2.innerHTML='<option value="">— 選擇要換到的日期 —</option>';
-  const assigned=Object.entries(sched).filter(([k,v])=>v&&k!==d1).map(([k])=>k).sort();
-  assigned.forEach(k=>{
-    const p=sched[k];
-    const opt=document.createElement('option');
-    opt.value=k; opt.textContent=`${k.slice(5)}（${p}）`;
-    sel2.appendChild(opt);
-  });
-  document.getElementById('swap-step2').classList.remove('hidden');
-  document.getElementById('swap-preview').textContent='請選擇第二個日期';
-  document.getElementById('swap-submit-btn').style.opacity='.4';
-  document.getElementById('swap-submit-btn').style.pointerEvents='none';
-};
-
-window.onSwapDate2Change=function(){
+window.onSwapDateChange=function(){
   const d1=document.getElementById('swap-date1').value;
   const d2=document.getElementById('swap-date2').value;
   const sched=liveData[currentGroup].schedule;
   const btn=document.getElementById('swap-submit-btn');
-  if(!d2){ btn.style.opacity='.4'; btn.style.pointerEvents='none'; return; }
-  const p1=sched[d1]||'未排班', p2=sched[d2]||'未排班';
-  document.getElementById('swap-preview').textContent=`${d1}（${p1}）⇄ ${d2}（${p2}）`;
-  btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  const prev=document.getElementById('swap-preview');
+  if(d1&&d2&&d1!==d2){
+    const p1=sched[d1]||'未排班', p2=sched[d2]||'未排班';
+    prev.textContent=`${d1}（${p1}）⇄ ${d2}（${p2}）`;
+    prev.style.color='var(--text)';
+    btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  } else if(d1===d2&&d1){
+    prev.textContent='請選擇不同的兩個日期';
+    prev.style.color='var(--red)';
+    btn.style.opacity='.4'; btn.style.pointerEvents='none';
+  } else {
+    prev.textContent='請選擇兩個日期';
+    prev.style.color='var(--text3)';
+    btn.style.opacity='.4'; btn.style.pointerEvents='none';
+  }
 };
 
 window.closeSwapReqModal=function(ev){
@@ -1083,7 +1087,7 @@ window.closeSwapReqModal=function(ev){
 window.submitSwapReq=function(){
   const d1=document.getElementById('swap-date1').value;
   const d2=document.getElementById('swap-date2').value;
-  if(!d1||!d2){showToast('請選擇兩個日期');return;}
+  if(!d1||!d2||d1===d2){showToast('請選擇兩個不同日期');return;}
   const req={group:currentGroup,date1:d1,date2:d2,status:'pending',time:Date.now()};
   push(ref(db,'roster/shared/swapReqs'),req);
   document.getElementById('swap-req-modal').classList.add('hidden');
