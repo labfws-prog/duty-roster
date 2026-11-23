@@ -393,7 +393,7 @@ let currentGroup='A', currentTab='calendar';
 let swapMode=false, swapSelected=[];
 let expandedKey=null;
 let isAdmin=false;
-let liveData={A:{schedule:{},members:[]},B:{schedule:{},members:[]},events:[],targets:{A:12,B:12},swapReqs:{}};
+let liveData={A:{schedule:{},members:[]},B:{schedule:{},members:[]},events:[],targets:{A:12,B:12},swapReqs:{},settings:{mode:'random',gap:18,tol:2}};
 
 function getColors(){ return currentGroup==='A'?COLORS_A:COLORS_B; }
 function getAccent(){ return currentGroup==='A'?'#8b7355':'#6b7c6b'; }
@@ -432,6 +432,8 @@ async function initFirebase(){
     if(!st.exists()) await set(ref(db,'roster/shared/targets'),{A:12,B:12});
     onValue(ref(db,'roster/shared/targets'),snap=>{liveData.targets=snap.val()||{A:12,B:12};});
 
+    onValue(ref(db,'roster/shared/settings'),snap=>{liveData.settings={mode:'random',gap:18,tol:2,...(snap.val()||{})};});
+
     onValue(ref(db,'roster/shared/swapReqs'),snap=>{
       liveData.swapReqs=snap.val()||{};
       updateSwapNotif();
@@ -454,6 +456,7 @@ function saveSched(){
 }
 function saveMembers(){ set(ref(db,`roster/${currentGroup}/members`),liveData[currentGroup].members); }
 function saveEvents(){ set(ref(db,'roster/shared/events'),liveData.events); }
+function saveSettings(){ set(ref(db,'roster/shared/settings'),liveData.settings); }
 function saveTargets(){ set(ref(db,'roster/shared/targets'),liveData.targets); }
 
 // ── Render Header ─────────────────────────────────────────
@@ -462,6 +465,7 @@ function renderHeader(){
   if(isAdmin){
     el.innerHTML=`
       <button class="icon-btn auto" onclick="autoAssign()">🎲 自動排班</button>
+      <button class="icon-btn" onclick="openAutoSettings()">⚙ 排班設定</button>
       <button class="icon-btn danger" onclick="confirmClear()">🗑 清除</button>
       <button class="icon-btn" onclick="togglePanel('events')">🏷 標示</button>
       <button class="icon-btn" onclick="togglePanel('members')">👤 成員</button>
@@ -914,8 +918,12 @@ window.autoAssign=function(){
   Object.entries(schedule).forEach(([k,v])=>{if(k>='2026-04-01'&&yearCounts[v]!==undefined)yearCounts[v]++;});
   const newSched={...schedule};
   let assigned=0, failed=0;
+  let seqPtr=0;
+  {const before=Object.keys(schedule).filter(k=>k<targets[0]&&members.includes(schedule[k])).sort();
+   if(before.length) seqPtr=(members.indexOf(schedule[before[before.length-1]])+1)%members.length;}
   targets.forEach(key=>{
-    const minGap=18+Math.floor(Math.random()*3);
+    const ST=liveData.settings, tol=0;
+    const minGap=(ST.gap|0)+Math.floor(Math.random()*(tol+1));
     const eligible=members.filter(m=>{
       if(!lastDuty[m]) return true;
       return (new Date(key)-new Date(lastDuty[m]))/(1000*60*60*24)>=minGap;
@@ -924,6 +932,11 @@ window.autoAssign=function(){
     const curCounts={};
     members.forEach(m=>curCounts[m]=0);
     Object.entries(newSched).filter(([k])=>k.startsWith(curPfx)).forEach(([,v])=>{if(curCounts[v]!==undefined)curCounts[v]++;});
+    if(ST.mode==='seq'){
+      const n=members.length; let picked=null;
+      for(let i=0;i<n;i++){const m=members[(seqPtr+i)%n]; if(eligible.includes(m)){picked=m;seqPtr=(seqPtr+i+1)%n;break;}}
+      newSched[key]=picked; lastDuty[picked]=key; if(yearCounts[picked]!==undefined)yearCounts[picked]++; assigned++; return;
+    }
     eligible.sort((a,b)=>{
       const yd=(yearCounts[a]+(curCounts[a]||0))-(yearCounts[b]+(curCounts[b]||0));
       return yd!==0?yd:(curCounts[a]||0)-(curCounts[b]||0);
@@ -938,6 +951,27 @@ window.autoAssign=function(){
   liveData[currentGroup].schedule=newSched;
   saveSched(); render();
   showToast(`✅ 已排 ${assigned} 天${failed?`，${failed} 天間隔不足`:''}`);
+};
+
+window.openAutoSettings=function(){
+  const S=liveData.settings;
+  let m=document.getElementById('auto-set-modal');
+  if(!m){m=document.createElement('div');m.id='auto-set-modal';m.className='overlay center';document.body.appendChild(m);}
+  m.className='overlay center';
+  m.innerHTML=`<div class="modal-box center" style="width:90%">
+    <h3 style="margin-bottom:12px">⚙ 自動排班設定</h3>
+    <label style="display:block;margin:8px 0"><input type="radio" name="as-mode" value="seq" ${S.mode==='seq'?'checked':''}> 方案一：依成員順序排定（排到最後接回第1位）</label>
+    <label style="display:block;margin:8px 0"><input type="radio" name="as-mode" value="random" ${S.mode!=='seq'?'checked':''}> 方案二：亂數排定（次數少者優先）</label>
+    <label style="display:block;margin:12px 0 4px">兩次留守至少間隔幾天（自行設定）</label>
+    <input id="as-gap" type="number" min="0" max="60" value="${S.gap}" style="width:100%;padding:8px">
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button class="icon-btn" onclick="document.getElementById('auto-set-modal').className='hidden'">取消</button>
+      <button class="icon-btn auto" onclick="saveAutoSettings()">儲存</button></div></div>`;
+};
+window.saveAutoSettings=function(){
+  const mode=document.querySelector('input[name=as-mode]:checked').value;
+  liveData.settings={mode,gap:Math.max(0,+document.getElementById('as-gap').value||0),tol:0};
+  saveSettings();document.getElementById('auto-set-modal').className='hidden';showToast('已儲存排班設定');
 };
 
 window.confirmClear=function(){
