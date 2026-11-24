@@ -369,8 +369,8 @@ const GROUPS = {
   }
 };
 
-const AFFAIRS_EVENT = {id:'affairs',name:'科務會議',color:'#5f7a8b',dates:["2026-01-27","2026-02-24","2026-03-24","2026-04-21","2026-05-19","2026-06-23","2026-07-21","2026-08-18","2026-09-22","2026-10-20","2026-11-17","2026-12-15"],
-  notes:{"2026-01-27":"佳蓉-圓圓","2026-02-24":"毓棻","2026-03-24":"品序","2026-04-21":"陳宣羽","2026-05-19":"謝佩珊","2026-06-23":"陳世偉","2026-07-21":"詹麗君","2026-08-18":"夏雯儀","2026-09-22":"李家善","2026-10-20":"簡民昂","2026-11-17":"賓秋雅","2026-12-15":"柯銘杰"}};
+const AFFAIRS_EVENT = {id:'affairs',name:'科務會議',color:'#5f7a8b',dates:["2027-01-27","2027-02-24","2027-03-24","2027-04-21","2027-05-19","2027-06-23","2027-07-21","2027-08-18","2027-09-22","2027-10-20","2027-11-17","2027-12-15"],
+  notes:{"2027-01-27":"佳蓉-圓圓","2027-02-24":"毓棻","2027-03-24":"品序","2027-04-21":"陳宣羽","2027-05-19":"謝佩珊","2027-06-23":"陳世偉","2027-07-21":"詹麗君","2027-08-18":"夏雯儀","2027-09-22":"李家善","2027-10-20":"簡民昂","2027-11-17":"賓秋雅","2027-12-15":"柯銘杰"}};
 const INITIAL_EVENTS = [
   {id:'meeting',name:'科會',color:'#b07040',dates:["2026-04-13","2026-04-27","2026-05-11","2026-05-25","2026-06-08","2026-06-22"]},
   AFFAIRS_EVENT
@@ -458,7 +458,9 @@ async function initFirebase(){
     if(!se.exists()) await set(ref(db,'roster/shared/events'),INITIAL_EVENTS);
     onValue(ref(db,'roster/shared/events'),snap=>{
       liveData.events=snap.val()||JSON.parse(JSON.stringify(INITIAL_EVENTS));
-      if(!liveData.events.some(e=>e.id==='affairs')){liveData.events.push(JSON.parse(JSON.stringify(AFFAIRS_EVENT)));saveEvents();}
+      const ai=liveData.events.findIndex(e=>e.id==='affairs');
+      if(ai<0){liveData.events.push(JSON.parse(JSON.stringify(AFFAIRS_EVENT)));saveEvents();}
+      else if((liveData.events[ai].dates||[]).some(d=>d.startsWith('2026-'))){liveData.events[ai]=JSON.parse(JSON.stringify(AFFAIRS_EVENT));saveEvents();}
       render();});
 
     const st=await get(ref(db,'roster/shared/targets'));
